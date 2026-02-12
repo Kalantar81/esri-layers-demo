@@ -1,5 +1,5 @@
 <div class="container">
-  <!-- Map Section (80%) -->
+  <!-- Map Section (70%) -->
   <div class="map-section">
     <div #mapViewNode class="map-view"></div>
     <div *ngIf="isLoading" class="loading-overlay">
@@ -38,144 +38,25 @@
     </div>
   </div>
 
-  <!-- Control Panel (20%) -->
-  <div class="control-panel">
-    <h3>Control Panel</h3>
-
-    <div class="control-group">
-      <label for="basemap">Basemap:</label>
-      <select id="basemap" [(ngModel)]="selectedBasemap" (change)="onSettingsChange()" [disabled]="isLoading">
-        <option *ngFor="let basemap of basemapOptions" [value]="basemap.id">
-          {{ basemap.name }}
-        </option>
-      </select>
-    </div>
-
-    <div class="control-group">
-      <label for="layerType">Layer Type:</label>
-      <select id="layerType" [(ngModel)]="selectedLayerTypeForAll" (change)="onSettingsChange()" [disabled]="isLoading">
-        <option value="geojson">GeoJSON Layer</option>
-        <option value="graphics">Graphics Layer</option>
-        <option value="feature">Feature Layer</option>
-        <option value="csv">CSV Layer</option>
-        <option value="feature-collection">Feature Layer (Collection)</option>
-        <option value="client-side">Feature Layer (Client-Side)</option>
-      </select>
-    </div>
-
-    <div class="control-group">
-      <label for="symbolType">Symbol Type:</label>
-      <select id="symbolType" [(ngModel)]="selectedSymbolType" (change)="onSettingsChange()" [disabled]="isLoading">
-        <option value="simple-marker">Simple Marker (Point)</option>
-        <option value="circle">Circle</option>
-        <option value="square">Square</option>
-        <option value="diamond">Diamond</option>
-        <option value="cross">Cross</option>
-        <option value="x">X Symbol</option>
-        <option value="triangle">Triangle</option>
-        <option value="picture-marker">Picture Marker (SVG)</option>
-        <option value="complex-svg">Complex SVG</option>
-        <option value="png-image">Custom Icon (Different per layer)</option>
-      </select>
-    </div>
-
-    <div class="control-group">
-      <label for="entitiesAmount">Entities Per Layer:</label>
-      <input
-        type="number"
-        id="entitiesAmount"
-        [(ngModel)]="entitiesAmount"
-        (change)="onSettingsChange()"
-        [disabled]="isLoading"
-        min="100"
-        max="100000"
-        step="100"
-        placeholder="Enter number per layer">
-      <small class="hint">Per layer: {{ entitiesAmount | number }} entities</small>
-      <div class="total-entities">
-        <strong>Total Entities:</strong> {{ getTotalEntities() | number }}
-      </div>
-    </div>
-
-    <button 
-      class="apply-button" 
-      (click)="applySettings()" 
-      [disabled]="isLoading">
-      Apply Settings
-    </button>
-
-    <div class="stats-info">
-      <h4>Statistics:</h4>
-      <div class="stat-item">
-        <span class="stat-label">Active Layers:</span>
-        <span class="stat-value">{{ activeLayerIds.size }} / 22</span>
-      </div>
-      <div class="stat-item">
-        <span class="stat-label">Total Entities:</span>
-        <span class="stat-value">{{ getActiveEntitiesCount() | number }}</span>
-      </div>
-      <div class="stat-item">
-        <span class="stat-label">Layer Type:</span>
-        <span class="stat-value">{{ getLayerTypeName() }}</span>
-      </div>
-      <div class="stat-item">
-        <span class="stat-label">Symbol Type:</span>
-        <span class="stat-value">{{ getSymbolTypeName() }}</span>
-      </div>
-      <div class="stat-item">
-        <span class="stat-label">Loading Time:</span>
-        <span class="stat-value">{{ totalLoadingTime }} ms</span>
-      </div>
-      <div class="stat-item" *ngIf="lastLoadedTime">
-        <span class="stat-label">Loaded At:</span>
-        <span class="stat-value">{{ lastLoadedTime }}</span>
-      </div>
-    </div>
-
-    <!-- History Section -->
-    <div class="history-section">
-      <div class="history-header" (click)="toggleHistory()">
-        <h4>History</h4>
-        <span class="history-count" *ngIf="history.length > 0">({{ history.length }})</span>
-        <button class="toggle-btn" [class.expanded]="isHistoryExpanded">
-          {{ isHistoryExpanded ? '−' : '+' }}
-        </button>
-      </div>
-
-      <div class="history-content" *ngIf="isHistoryExpanded">
-        <div class="history-actions" *ngIf="history.length > 0">
-          <button class="clear-history-btn" (click)="clearHistory()">Clear History</button>
-        </div>
-
-        <div class="history-empty" *ngIf="history.length === 0">
-          <p>No history yet. Load layers to see history.</p>
-        </div>
-
-        <div class="history-table-wrapper" *ngIf="history.length > 0">
-          <table class="history-table">
-            <thead>
-              <tr>
-                <th>Time</th>
-                <th>Basemap</th>
-                <th>Symbol</th>
-                <th>Entities</th>
-                <th>Load Time</th>
-                <th>Layers</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let entry of history" class="history-row">
-                <td class="timestamp">{{ entry.timestamp | date:'short' }}</td>
-                <td>{{ entry.basemap }}</td>
-                <td>{{ entry.symbolType }}</td>
-                <td>{{ entry.totalEntities | number }}</td>
-                <td class="load-time">{{ entry.loadingTime }} ms</td>
-                <td>{{ entry.activeLayersCount }}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  </div>
+  <!-- Control Panel Component (30%) -->
+  <app-control-panel-layers
+    [selectedBasemap]="selectedBasemap"
+    [selectedLayerTypeForAll]="selectedLayerTypeForAll"
+    [selectedSymbolType]="selectedSymbolType"
+    [entitiesAmount]="entitiesAmount"
+    [isLoading]="isLoading"
+    [basemapOptions]="basemapOptions"
+    [totalLoadingTime]="totalLoadingTime"
+    [lastLoadedTime]="lastLoadedTime"
+    [activeLayerCount]="activeLayerIds.size"
+    [history]="history"
+    (basemapChange)="onPanelBasemapChange($event)"
+    (layerTypeChange)="onPanelLayerTypeChange($event)"
+    (symbolTypeChange)="onPanelSymbolTypeChange($event)"
+    (entitiesAmountChange)="onPanelEntitiesAmountChange($event)"
+    (applySettings)="applySettings()"
+    (settingsChange)="onSettingsChange()"
+    (historyToggle)="toggleHistory()"
+    (historyClear)="clearHistory()"
+  ></app-control-panel-layers>
 </div>

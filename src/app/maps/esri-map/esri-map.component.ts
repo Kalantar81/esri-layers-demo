@@ -401,6 +401,22 @@ export class EsriMapComponent implements OnInit, OnDestroy {
     this.history = [];
   }
 
+  onPanelBasemapChange(value: string): void {
+    this.selectedBasemap = value;
+  }
+
+  onPanelLayerTypeChange(value: string): void {
+    this.selectedLayerTypeForAll = value as 'geojson' | 'graphics' | 'feature' | 'csv' | 'feature-collection' | 'client-side';
+  }
+
+  onPanelSymbolTypeChange(value: string): void {
+    this.selectedSymbolType = value;
+  }
+
+  onPanelEntitiesAmountChange(value: number): void {
+    this.entitiesAmount = value;
+  }
+
   onSettingsChange(): void {
     // Settings changed, but not applied yet
     console.log('Settings changed - Basemap:', this.selectedBasemap, 'Layer:', this.selectedLayerType, 'Symbol:', this.selectedSymbolType, 'Amount:', this.entitiesAmount);
