@@ -1,0 +1,19 @@
+# Angular
+.angular/
+node_modules/
+dist/
+.DS_Store
+*.log
+
+# Environment files
+.env
+.env.local
+
+# IDE
+.vscode/
+.idea/
+
+# Build outputs
+/dist
+/tmp
+/out-tsc
