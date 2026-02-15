@@ -1,1 +1,73 @@
-<p>contol-panel-lazy-loading works!</p>
+<div class="control-panel">
+  <h3>Lazy Loading Settings</h3>
+
+  <form [formGroup]="settingsForm" (ngSubmit)="onSubmit()">
+    <div class="control-group">
+      <label for="layerType">Layer Type:</label>
+      <select id="layerType" formControlName="layerType">
+        <option value="geojson">GeoJSON Layer</option>
+        <option value="graphics">Graphics Layer</option>
+        <option value="feature">Feature Layer</option>
+        <option value="csv">CSV Layer</option>
+        <option value="feature-collection">Feature Layer (Collection)</option>
+        <option value="client-side">Feature Layer (Client-Side)</option>
+      </select>
+    </div>
+
+    <div class="control-group">
+      <label for="symbolType">Symbol Type:</label>
+      <select id="symbolType" formControlName="symbolType">
+        <option value="simple-marker">Simple Marker (Point)</option>
+        <option value="circle">Circle</option>
+        <option value="square">Square</option>
+        <option value="diamond">Diamond</option>
+        <option value="cross">Cross</option>
+        <option value="x">X Symbol</option>
+        <option value="triangle">Triangle</option>
+        <option value="picture-marker">Picture Marker (SVG)</option>
+        <option value="complex-svg">Complex SVG</option>
+        <option value="png-image">Custom Icon (Different per layer)</option>
+      </select>
+    </div>
+
+    <div class="control-group">
+      <label for="entitiesPerLayer">Entities Per Layer:</label>
+      <input
+        type="number"
+        id="entitiesPerLayer"
+        formControlName="entitiesPerLayer"
+        min="100"
+        max="100000"
+        step="100"
+        placeholder="Enter number per layer">
+      <small class="hint">Per layer: {{ settingsForm.get('entitiesPerLayer')?.value | number }} entities</small>
+    </div>
+
+    <div class="control-group">
+      <label for="loadingStrategy">Loading Strategy:</label>
+      <select id="loadingStrategy" formControlName="loadingStrategy">
+        <option value="query-task-pagination">QueryTask Pagination</option>
+        <option value="graphics-layer-batches">GraphicsLayer Batches</option>
+        <option value="clustering">Clustering</option>
+        <option value="max-record-count">Max Record Count</option>
+      </select>
+    </div>
+
+    <div class="control-group">
+      <label for="bulkAmount">Bulk Amount:</label>
+      <input
+        type="number"
+        id="bulkAmount"
+        formControlName="bulkAmount"
+        min="1"
+        max="22"
+        step="1"
+        placeholder="Number of layers to load at once">
+      <small class="hint">Load {{ settingsForm.get('bulkAmount')?.value }} layers at a time</small>
+    </div>
+
+    <button type="submit" class="apply-button">
+      Apply Settings
+    </button>
+  </form>
+</div>
