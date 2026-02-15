@@ -477,7 +477,8 @@ export class EsriMapComponent implements OnInit, OnDestroy, OnChanges {
 
       try {
         const selectedLayerIds: string[] = Array.from(this.activeLayerIds);
-        const layerPromises = selectedLayerIds.map(layerId => this.addLayer(layerId));
+        const enableClustering = this.layerMode === 'clustering';
+        const layerPromises = selectedLayerIds.map(layerId => this.addLayerWithClustering(layerId, enableClustering));
         await Promise.all(layerPromises);
 
         const endTime = performance.now();
