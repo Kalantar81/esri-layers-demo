@@ -26,8 +26,12 @@ export class ControlPanelClusteringComponent implements OnDestroy {
   @Output() settingsChange = new EventEmitter<void>();
   @Output() historyToggle = new EventEmitter<void>();
   @Output() historyClear = new EventEmitter<void>();
+  @Output() clusteringTypeChange = new EventEmitter<string>();
+  @Output() analysisMethodChange = new EventEmitter<string>();
   @Output() cleanup = new EventEmitter<void>();
 
+  selectedClusteringType: string = 'dynamic';
+  selectedAnalysisMethod: string = 'multivariate';
   isHistoryExpanded: boolean = false;
 
   onBasemapChange(event: any): void {
@@ -42,6 +46,18 @@ export class ControlPanelClusteringComponent implements OnDestroy {
 
   onSymbolTypeChange(event: any): void {
     this.symbolTypeChange.emit(event.target.value);
+    this.settingsChange.emit();
+  }
+
+  onClusteringTypeChange(event: any): void {
+    this.selectedClusteringType = event.target.value;
+    this.clusteringTypeChange.emit(event.target.value);
+    this.settingsChange.emit();
+  }
+
+  onAnalysisMethodChange(event: any): void {
+    this.selectedAnalysisMethod = event.target.value;
+    this.analysisMethodChange.emit(event.target.value);
     this.settingsChange.emit();
   }
 

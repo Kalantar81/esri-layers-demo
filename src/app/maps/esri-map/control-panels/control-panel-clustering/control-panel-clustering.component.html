@@ -39,6 +39,25 @@
   </div>
 
   <div class="control-group">
+    <label for="clusteringType">Clustering Type:</label>
+    <select id="clusteringType" [ngModel]="selectedClusteringType" (change)="onClusteringTypeChange($event)" [disabled]="isLoading">
+      <option value="dynamic">Dynamic Feature Clustering</option>
+      <option value="chart">Chart Clustering</option>
+      <option value="standard">Standard Clustering</option>
+    </select>
+  </div>
+
+  <div class="control-group">
+    <label for="analysisMethod">Analysis Method (Spatial Statistics):</label>
+    <select id="analysisMethod" [ngModel]="selectedAnalysisMethod" (change)="onAnalysisMethodChange($event)" [disabled]="isLoading">
+      <option value="multivariate">Multivariate Clustering</option>
+      <option value="hierarchical">Hierarchical Clustering</option>
+      <option value="k-means">K-Means Clustering</option>
+      <option value="high-low">High/Low Clustering (Getis-Ord)</option>
+    </select>
+  </div>
+
+  <div class="control-group">
     <label for="entitiesAmount">Entities Per Layer:</label>
     <input
       type="number"
