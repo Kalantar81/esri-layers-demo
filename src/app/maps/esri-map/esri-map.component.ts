@@ -1,5 +1,6 @@
-import { Component, OnInit, OnDestroy, ViewChild, ElementRef, Input } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef, Input, OnChanges, SimpleChanges, ChangeDetectorRef } from '@angular/core';
 import { LayersService } from '../services/layers.service';
+import { ContolPanelLazyLoadingComponent } from '../contol-panel-lazy-loading/contol-panel-lazy-loading.component';
 import esriConfig from '@arcgis/core/config';
 import EsriMap from '@arcgis/core/Map';
 import MapView from '@arcgis/core/views/MapView';
@@ -33,8 +34,9 @@ interface HistoryEntry {
   templateUrl: './esri-map.component.html',
   styleUrls: ['./esri-map.component.scss']
 })
-export class EsriMapComponent implements OnInit, OnDestroy {
+export class EsriMapComponent implements OnInit, OnDestroy, OnChanges {
   @ViewChild('mapViewNode', { static: true }) private mapViewEl!: ElementRef;
+  @ViewChild('lazyLoadingPanel') private lazyLoadingPanel!: ContolPanelLazyLoadingComponent;
   @Input() layerMode: 'layers' | 'lazy-loading' | 'clustering' = 'layers';
 
   private view: any = null;
@@ -306,10 +308,20 @@ export class EsriMapComponent implements OnInit, OnDestroy {
     }
   ];
 
-  constructor(private layersService: LayersService) {}
+  constructor(private layersService: LayersService, private cdr: ChangeDetectorRef) {}
 
   ngOnInit(): void {
     this.initializeMap();
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['layerMode'] && !changes['layerMode'].firstChange) {
+      // When layer mode changes, remove all layers and close the layer panel
+      this.removeAllLayers();
+      this.isLayerPanelOpen = false;
+      // Manually trigger change detection
+      this.cdr.detectChanges();
+    }
   }
 
   get visibleLayerTypes(): LayerType[] {
@@ -450,8 +462,8 @@ export class EsriMapComponent implements OnInit, OnDestroy {
             this.map.remove(layer);
           }
         });
-        this.activeLayers.clear();
-        this.activeLayerIds.clear();
+        this.activeLayers = new Map(); // Reassign for change detection
+        this.activeLayerIds = new Set(); // Reassign for change detection
 
         // Reload all layers with new settings
         const layerPromises = activeLayerIds.map(layerId => this.addLayer(layerId));
@@ -516,8 +528,8 @@ export class EsriMapComponent implements OnInit, OnDestroy {
     this.activeLayers.forEach((layer) => {
       this.map.remove(layer);
     });
-    this.activeLayers.clear();
-    this.activeLayerIds.clear();
+    this.activeLayers = new Map(); // Reassign to trigger change detection
+    this.activeLayerIds = new Set(); // Reassign to trigger change detection
     this.totalLoadingTime = 0;
     this.lastLoadedTime = '';
     this.entityCount = 0;
@@ -1477,6 +1489,7 @@ export class EsriMapComponent implements OnInit, OnDestroy {
   }
 
   async onLazyLoadingApplySettings(settings: any): Promise<void> {
+    const startTime = performance.now();
     const { layerType, symbolType, entitiesPerLayer, bulkAmount, loadingStrategy } = settings;
     const parallelBatches = 3; // Fixed number of parallel batches to load
 
@@ -1501,6 +1514,13 @@ export class EsriMapComponent implements OnInit, OnDestroy {
       case 'max-record-count':
         await this.loadWithMaxRecordCount(layerType, bulkAmount, parallelBatches, symbolType);
         break;
+    }
+
+    // Calculate actual loading time and add to history
+    const endTime = performance.now();
+    const loadingTime = endTime - startTime;
+    if (this.lazyLoadingPanel) {
+      this.lazyLoadingPanel.addHistoryEntry(loadingTime);
     }
   }
 
