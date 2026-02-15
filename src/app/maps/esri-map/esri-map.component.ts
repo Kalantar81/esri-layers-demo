@@ -1,5 +1,15 @@
 import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
 import { LayersService } from '../services/layers.service';
+import esriConfig from '@arcgis/core/config';
+import EsriMap from '@arcgis/core/Map';
+import MapView from '@arcgis/core/views/MapView';
+import GeoJSONLayer from '@arcgis/core/layers/GeoJSONLayer';
+import GraphicsLayer from '@arcgis/core/layers/GraphicsLayer';
+import Graphic from '@arcgis/core/Graphic';
+import Point from '@arcgis/core/geometry/Point';
+import FeatureLayer from '@arcgis/core/layers/FeatureLayer';
+import CSVLayer from '@arcgis/core/layers/CSVLayer';
+import SimpleRenderer from '@arcgis/core/renderers/SimpleRenderer';
 
 interface LayerType {
   id: string;
@@ -307,15 +317,9 @@ export class EsriMapComponent implements OnInit, OnDestroy {
 
   private async initializeMap(): Promise<void> {
     try {
-      const [esriConfig, Map, MapView] = await this.loadArcGISModules([
-        'esri/config',
-        'esri/Map',
-        'esri/views/MapView'
-      ]);
+      esriConfig.assetsPath = './assets/esri';
 
-      esriConfig.portalUrl = null;
-
-      this.map = new Map({
+      this.map = new EsriMap({
         basemap: this.selectedBasemap
       });
 
@@ -436,7 +440,7 @@ export class EsriMapComponent implements OnInit, OnDestroy {
 
       try {
         // Get all currently active layer IDs
-        const activeLayerIds = Array.from(this.activeLayers.keys());
+        const activeLayerIds: string[] = Array.from(this.activeLayers.keys()) as string[];
 
         // Remove all current layers
         activeLayerIds.forEach(layerId => {
@@ -953,17 +957,14 @@ export class EsriMapComponent implements OnInit, OnDestroy {
   }
 
   private async buildGeoJSONLayer(data: any, layerId: string): Promise<any> {
-    const [GeoJSONLayer] = await this.loadArcGISModules(['esri/layers/GeoJSONLayer']);
-
     const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
 
     return new GeoJSONLayer({
       url: url,
-      renderer: {
-        type: 'simple',
+      renderer: new SimpleRenderer({
         symbol: this.getSymbolForType(layerId)
-      },
+      }),
       popupTemplate: {
         title: 'Earthquake (GeoJSON Layer)',
         content: '<b>ID:</b> {id}<br><b>Latitude:</b> {latitude}<br><b>Longitude:</b> {longitude}<br><b>Magnitude:</b> {mag}<br><b>Mag Type:</b> {magnitude_type}<br><b>Location:</b> {place}<br><b>Time:</b> {time}<br><b>Depth:</b> {depth}<br><b>Status:</b> {status}<br><b>Felt Reports:</b> {felt_reports}<br><b>Significant:</b> {significant}<br><b>Tsunami Risk:</b> {tsunami}<br><b>Reported By:</b> {reported_by}'
@@ -978,12 +979,6 @@ export class EsriMapComponent implements OnInit, OnDestroy {
   }
 
   private async buildGraphicsLayer(data: any, layerId: string): Promise<any> {
-    const [GraphicsLayer, Graphic, Point] = await this.loadArcGISModules([
-      'esri/layers/GraphicsLayer',
-      'esri/Graphic',
-      'esri/geometry/Point'
-    ]);
-
     const layer = new GraphicsLayer();
 
     const features = data.features || [];
@@ -1020,12 +1015,6 @@ export class EsriMapComponent implements OnInit, OnDestroy {
   }
 
   private async buildFeatureLayer(data: any, layerId: string): Promise<any> {
-    const [FeatureLayer, Graphic, Point] = await this.loadArcGISModules([
-      'esri/layers/FeatureLayer',
-      'esri/Graphic',
-      'esri/geometry/Point'
-    ]);
-
     const features = data.features || [];
     const graphics = features.map((feature: any) => {
       const [lon, lat] = feature.geometry.coordinates;
@@ -1057,10 +1046,9 @@ export class EsriMapComponent implements OnInit, OnDestroy {
         { name: 'tsunami', type: 'string' },
         { name: 'reported_by', type: 'string' }
       ],
-      renderer: {
-        type: 'simple',
+      renderer: new SimpleRenderer({
         symbol: this.getSymbolForType(layerId)
-      },
+      }),
       popupTemplate: {
         title: 'Earthquake (Feature Layer)',
         content: '<b>ID:</b> {id}<br><b>Latitude:</b> {latitude}<br><b>Longitude:</b> {longitude}<br><b>Magnitude:</b> {mag}<br><b>Mag Type:</b> {magnitude_type}<br><b>Location:</b> {place}<br><b>Time:</b> {time}<br><b>Depth:</b> {depth}<br><b>Status:</b> {status}<br><b>Felt Reports:</b> {felt_reports}<br><b>Significant:</b> {significant}<br><b>Tsunami Risk:</b> {tsunami}<br><b>Reported By:</b> {reported_by}'
@@ -1075,8 +1063,6 @@ export class EsriMapComponent implements OnInit, OnDestroy {
   }
 
   private async buildCSVLayer(data: any, layerId: string): Promise<any> {
-    const [CSVLayer] = await this.loadArcGISModules(['esri/layers/CSVLayer']);
-
     const features = data.features || [];
     let csvContent = 'longitude,latitude,id,mag,magnitude_type,place,time,depth,status,felt_reports,significant,tsunami,reported_by\n';
 
@@ -1093,10 +1079,9 @@ export class EsriMapComponent implements OnInit, OnDestroy {
       url: url,
       latitudeField: 'latitude',
       longitudeField: 'longitude',
-      renderer: {
-        type: 'simple',
+      renderer: new SimpleRenderer({
         symbol: this.getSymbolForType(layerId)
-      },
+      }),
       popupTemplate: {
         title: 'Earthquake (CSV Layer)',
         content: '<b>ID:</b> {id}<br><b>Latitude:</b> {latitude}<br><b>Longitude:</b> {longitude}<br><b>Magnitude:</b> {mag}<br><b>Mag Type:</b> {magnitude_type}<br><b>Location:</b> {place}<br><b>Time:</b> {time}<br><b>Depth:</b> {depth}<br><b>Status:</b> {status}<br><b>Felt Reports:</b> {felt_reports}<br><b>Significant:</b> {significant}<br><b>Tsunami Risk:</b> {tsunami}<br><b>Reported By:</b> {reported_by}'
@@ -1111,8 +1096,6 @@ export class EsriMapComponent implements OnInit, OnDestroy {
   }
 
   private async buildFeatureCollectionLayer(data: any, layerId: string): Promise<any> {
-    const [FeatureLayer] = await this.loadArcGISModules(['esri/layers/FeatureLayer']);
-
     const features = data.features || [];
     const featureSet = features.map((feature: any, index: number) => {
       const [lon, lat] = feature.geometry.coordinates;
@@ -1161,10 +1144,9 @@ export class EsriMapComponent implements OnInit, OnDestroy {
         { name: 'tsunami', type: 'string' },
         { name: 'reported_by', type: 'string' }
       ],
-      renderer: {
-        type: 'simple',
+      renderer: new SimpleRenderer({
         symbol: this.getSymbolForType(layerId)
-      },
+      }),
       popupTemplate: {
         title: 'Earthquake (Feature Collection)',
         content: '<b>ID:</b> {id}<br><b>Latitude:</b> {latitude}<br><b>Longitude:</b> {longitude}<br><b>Magnitude:</b> {mag}<br><b>Mag Type:</b> {magnitude_type}<br><b>Location:</b> {place}<br><b>Time:</b> {time}<br><b>Depth:</b> {depth}<br><b>Status:</b> {status}<br><b>Felt Reports:</b> {felt_reports}<br><b>Significant:</b> {significant}<br><b>Tsunami Risk:</b> {tsunami}<br><b>Reported By:</b> {reported_by}'
@@ -1179,8 +1161,6 @@ export class EsriMapComponent implements OnInit, OnDestroy {
   }
 
   private async buildClientSideFeatureLayer(data: any, layerId: string): Promise<any> {
-    const [FeatureLayer] = await this.loadArcGISModules(['esri/layers/FeatureLayer']);
-
     const features = data.features || [];
     const graphics = features.map((feature: any, index: number) => {
       const [lon, lat] = feature.geometry.coordinates;
@@ -1231,10 +1211,9 @@ export class EsriMapComponent implements OnInit, OnDestroy {
         { name: 'tsunami', alias: 'Tsunami Risk', type: 'string' },
         { name: 'reported_by', alias: 'Reported By', type: 'string' }
       ],
-      renderer: {
-        type: 'simple',
+      renderer: new SimpleRenderer({
         symbol: this.getSymbolForType(layerId)
-      },
+      }),
       popupTemplate: {
         title: 'Earthquake (Client-Side Feature)',
         content: '<b>ID:</b> {id}<br><b>Latitude:</b> {latitude}<br><b>Longitude:</b> {longitude}<br><b>Magnitude:</b> {mag}<br><b>Mag Type:</b> {magnitude_type}<br><b>Location:</b> {place}<br><b>Time:</b> {time}<br><b>Depth:</b> {depth}<br><b>Status:</b> {status}<br><b>Felt Reports:</b> {felt_reports}<br><b>Significant:</b> {significant}<br><b>Tsunami Risk:</b> {tsunami}<br><b>Reported By:</b> {reported_by}'
@@ -1256,14 +1235,6 @@ export class EsriMapComponent implements OnInit, OnDestroy {
   getCurrentLayerInfo(): string {
     const layer = this.layerTypes.find(l => l.id === this.selectedLayerType);
     return layer ? layer.description : 'No layer selected';
-  }
-
-  private loadArcGISModules(modules: string[]): Promise<any[]> {
-    return new Promise((resolve, reject) => {
-      (window as any).require(modules, (...args: any[]) => {
-        resolve(args);
-      }, reject);
-    });
   }
 
   ngOnDestroy(): void {
