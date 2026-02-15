@@ -13,6 +13,7 @@ import { ControlPanelLayersComponent } from './esri-map/control-panel-layers/con
 import { MapsLayoutComponent } from './maps-layout/maps-layout.component';
 import { LayersService } from './services/layers.service';
 import { ContolPanelLazyLoadingComponent } from './contol-panel-lazy-loading/contol-panel-lazy-loading.component';
+import { LayerControlButtonComponent } from './layer-control-button/layer-control-button.component';
 
 
 @NgModule({
@@ -20,7 +21,8 @@ import { ContolPanelLazyLoadingComponent } from './contol-panel-lazy-loading/con
     EsriMapComponent,
     ControlPanelLayersComponent,
     MapsLayoutComponent,
-    ContolPanelLazyLoadingComponent
+    ContolPanelLazyLoadingComponent,
+    LayerControlButtonComponent
   ],
   imports: [
     CommonModule,
