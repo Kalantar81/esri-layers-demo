@@ -1,0 +1,119 @@
+:host {
+  display: block;
+  height: 100%;
+  width: 100%;
+}
+
+.control-panel {
+  width: 100%;
+  height: 100%;
+  background-color: #f5f5f5;
+  padding: 20px;
+  box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
+  overflow-y: auto;
+  overflow-x: hidden;
+  box-sizing: border-box;
+
+  h3 {
+    margin-top: 0;
+    color: #333;
+    border-bottom: 2px solid #0079c1;
+    padding-bottom: 10px;
+  }
+}
+
+.control-group {
+  margin-bottom: 20px;
+
+  label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #444;
+    font-size: 14px;
+  }
+
+  select, input[type="number"] {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+    background-color: white;
+    cursor: pointer;
+    transition: border-color 0.3s;
+    box-sizing: border-box;
+
+    &:hover:not(:disabled) {
+      border-color: #0079c1;
+    }
+
+    &:focus {
+      outline: none;
+      border-color: #0079c1;
+      box-shadow: 0 0 0 2px rgba(0, 121, 193, 0.1);
+    }
+
+    &:disabled {
+      background-color: #f0f0f0;
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+  }
+
+  input[type="number"] {
+    cursor: text;
+  }
+
+  .hint {
+    display: block;
+    margin-top: 5px;
+    font-size: 11px;
+    color: #888;
+    font-style: italic;
+  }
+
+  .total-entities {
+    display: block;
+    margin-top: 12px;
+    padding: 10px;
+    background-color: #e8f4fd;
+    border-left: 4px solid #0079c1;
+    border-radius: 2px;
+    font-size: 13px;
+    color: #333;
+
+    strong {
+      color: #0079c1;
+      font-weight: 600;
+    }
+  }
+}
+
+.apply-button {
+  width: 100%;
+  padding: 12px;
+  background-color: #0079c1;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  box-sizing: border-box;
+
+  &:hover:not(:disabled) {
+    background-color: #005a8d;
+  }
+
+  &:active:not(:disabled) {
+    background-color: #004570;
+  }
+
+  &:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+}

@@ -76,6 +76,8 @@ export class MapsLayoutComponent implements OnInit, OnDestroy {
   private updateModeFromUrl(url: string): void {
     if (url.includes('control-panel-lazy-loading')) {
       this.layerMode = 'lazy-loading';
+    } else if (url.includes('control-panel-clustering')) {
+      this.layerMode = 'clustering';
     } else {
       this.layerMode = 'layers';
     }
@@ -96,6 +98,8 @@ export class MapsLayoutComponent implements OnInit, OnDestroy {
 
   onClusteringToggle(): void {
     this.layerMode = 'clustering';
+    this.router.navigate(['/control-panel-clustering']);
+    this.esriMap.removeAllLayers();
     this.resetControlPanel();
   }
 

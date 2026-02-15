@@ -1,0 +1,81 @@
+<div class="control-panel">
+  <h3>Control Panel</h3>
+
+  <div class="control-group">
+    <label for="basemap">Basemap:</label>
+    <select id="basemap" [ngModel]="selectedBasemap" (change)="onBasemapChange($event)" [disabled]="isLoading">
+      <option *ngFor="let basemap of basemapOptions" [value]="basemap.id">
+        {{ basemap.name }}
+      </option>
+    </select>
+  </div>
+
+  <div class="control-group">
+    <label for="layerType">Layer Type:</label>
+    <select id="layerType" [ngModel]="selectedLayerTypeForAll" (change)="onLayerTypeChange($event)" [disabled]="isLoading">
+      <option value="geojson">GeoJSON Layer</option>
+      <option value="graphics">Graphics Layer</option>
+      <option value="feature">Feature Layer</option>
+      <option value="csv">CSV Layer</option>
+      <option value="feature-collection">Feature Layer (Collection)</option>
+      <option value="client-side">Feature Layer (Client-Side)</option>
+    </select>
+  </div>
+
+  <div class="control-group">
+    <label for="symbolType">Symbol Type:</label>
+    <select id="symbolType" [ngModel]="selectedSymbolType" (change)="onSymbolTypeChange($event)" [disabled]="isLoading">
+      <option value="simple-marker">Simple Marker (Point)</option>
+      <option value="circle">Circle</option>
+      <option value="square">Square</option>
+      <option value="diamond">Diamond</option>
+      <option value="cross">Cross</option>
+      <option value="x">X Symbol</option>
+      <option value="triangle">Triangle</option>
+      <option value="picture-marker">Picture Marker (SVG)</option>
+      <option value="complex-svg">Complex SVG</option>
+      <option value="png-image">Custom Icon (Different per layer)</option>
+    </select>
+  </div>
+
+  <div class="control-group">
+    <label for="entitiesAmount">Entities Per Layer:</label>
+    <input
+      type="number"
+      id="entitiesAmount"
+      [ngModel]="entitiesAmount"
+      (change)="onEntitiesAmountChange($event)"
+      [disabled]="isLoading"
+      min="100"
+      max="100000"
+      step="100"
+      placeholder="Enter number per layer">
+    <small class="hint">Per layer: {{ entitiesAmount | number }} entities</small>
+    <div class="total-entities">
+      <strong>Total Entities:</strong> {{ getTotalEntities() | number }}
+    </div>
+  </div>
+
+  <button 
+    class="apply-button" 
+    (click)="onApplySettings()" 
+    [disabled]="isLoading">
+    Apply Settings
+  </button>
+
+  <app-status-info
+    [activeLayerCount]="activeLayerCount"
+    [totalEntities]="getActiveEntitiesCount()"
+    [layerTypeName]="getLayerTypeName()"
+    [symbolTypeName]="getSymbolTypeName()"
+    [totalLoadingTime]="totalLoadingTime"
+    [lastLoadedTime]="lastLoadedTime">
+  </app-status-info>
+
+  <app-history-section
+    [history]="history"
+    [isExpanded]="isHistoryExpanded"
+    (toggle)="onHistoryToggle()"
+    (clear)="onClearHistory()">
+  </app-history-section>
+</div>

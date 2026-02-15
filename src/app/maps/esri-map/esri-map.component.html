@@ -11,7 +11,7 @@
     <app-layer-control-button (toggle)="toggleLayerPanel()"></app-layer-control-button>
 
     <!-- Layer Control Panel -->
-    <div class="layer-panel" [class.open]="isLayerPanelOpen" *ngIf="layerMode === 'layers' || layerMode === 'lazy-loading'">
+    <div class="layer-panel" [class.open]="isLayerPanelOpen" *ngIf="layerMode === 'layers' || layerMode === 'lazy-loading' || layerMode === 'clustering'">
       <div class="layer-panel-header">
         <h4>Active Layers</h4>
         <button class="close-btn" (click)="toggleLayerPanel()">×</button>
@@ -68,4 +68,28 @@
     (applySettings)="onLazyLoadingApplySettings($event)"
     (cleanup)="cleanupAllLayers()"
   ></app-contol-panel-lazy-loading>
+
+  <!-- Clustering Control Panel -->
+  <app-control-panel-clustering
+    *ngIf="layerMode === 'clustering'"
+    [selectedBasemap]="selectedBasemap"
+    [selectedLayerTypeForAll]="selectedLayerTypeForAll"
+    [selectedSymbolType]="selectedSymbolType"
+    [entitiesAmount]="entitiesAmount"
+    [isLoading]="isLoading"
+    [basemapOptions]="basemapOptions"
+    [totalLoadingTime]="totalLoadingTime"
+    [lastLoadedTime]="lastLoadedTime"
+    [activeLayerCount]="activeLayerIds.size"
+    [history]="history"
+    (basemapChange)="onPanelBasemapChange($event)"
+    (layerTypeChange)="onPanelLayerTypeChange($event)"
+    (symbolTypeChange)="onPanelSymbolTypeChange($event)"
+    (entitiesAmountChange)="onPanelEntitiesAmountChange($event)"
+    (applySettings)="applySettings()"
+    (settingsChange)="onSettingsChange()"
+    (historyToggle)="toggleHistory()"
+    (historyClear)="clearHistory()"
+    (cleanup)="cleanupAllLayers()"
+  ></app-control-panel-clustering>
 </div>

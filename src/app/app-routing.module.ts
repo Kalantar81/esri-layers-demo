@@ -4,7 +4,8 @@ import { MapsLayoutComponent } from './maps/maps-layout/maps-layout.component';
 
 const routes: Routes = [
   { path: '', component: MapsLayoutComponent },
-  { path: 'control-panel-lazy-loading', component: MapsLayoutComponent }
+  { path: 'control-panel-lazy-loading', component: MapsLayoutComponent },
+  { path: 'control-panel-clustering', component: MapsLayoutComponent }
 ];
 
 @NgModule({

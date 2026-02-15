@@ -16,6 +16,7 @@ import { ContolPanelLazyLoadingComponent } from './esri-map/control-panels/conto
 import { LayerControlButtonComponent } from './layer-control-button/layer-control-button.component';
 import { StatusInfoComponent } from './esri-map/components/status-info/status-info.component';
 import { HistorySectionComponent } from './esri-map/components/history-section/history-section.component';
+import { ControlPanelClusteringComponent } from './esri-map/control-panels/control-panel-clustering/control-panel-clustering.component';
 
 
 @NgModule({
@@ -26,7 +27,8 @@ import { HistorySectionComponent } from './esri-map/components/history-section/h
     ContolPanelLazyLoadingComponent,
     LayerControlButtonComponent,
     StatusInfoComponent,
-    HistorySectionComponent
+    HistorySectionComponent,
+    ControlPanelClusteringComponent
   ],
   imports: [
     CommonModule,
