@@ -50,6 +50,8 @@ export class EsriMapComponent implements OnInit, OnDestroy, OnChanges {
   selectedLayerTypeForAll: 'geojson' | 'graphics' | 'feature' | 'csv' | 'feature-collection' | 'client-side' = 'geojson';
   selectedSymbolType: string = 'simple-marker';
   selectedBasemap: string = 'streets-vector';
+  selectedClusteringType: string = 'dynamic';
+  selectedAnalysisMethod: string = 'multivariate';
   entitiesAmount: number = 50000;
   layersToLoad: number = 22;
 
@@ -430,6 +432,14 @@ export class EsriMapComponent implements OnInit, OnDestroy, OnChanges {
     this.entitiesAmount = value;
   }
 
+  onPanelClusteringTypeChange(value: string): void {
+    this.selectedClusteringType = value;
+  }
+
+  onPanelAnalysisMethodChange(value: string): void {
+    this.selectedAnalysisMethod = value;
+  }
+
   onSettingsChange(): void {
     // Settings changed, but not applied yet
     console.log('Settings changed - Basemap:', this.selectedBasemap, 'Layer:', this.selectedLayerType, 'Symbol:', this.selectedSymbolType, 'Amount:', this.entitiesAmount);
@@ -444,6 +454,10 @@ export class EsriMapComponent implements OnInit, OnDestroy, OnChanges {
     // Clear all layers and graphics first
     this.activeLayers.forEach(layer => this.map.remove(layer));
     this.activeLayers.clear();
+    if (this.currentLayer) {
+      this.map.remove(this.currentLayer);
+      this.currentLayer = null;
+    }
     this.map.allLayers.forEach((layer: any) => {
       if (layer.type === 'graphics') {
         layer.removeAll();
@@ -627,9 +641,15 @@ export class EsriMapComponent implements OnInit, OnDestroy, OnChanges {
       // Transform coordinates to Israel for all features
       const transformedData = this.transformDataToIsrael(filteredData);
 
-      // Create layer based on the selected layer type (use selectedLayerTypeForAll instead of layerConfig.type)
+      // Create layer based on the selected layer type
+      // In clustering mode, use clustering-aware layer creation for supported types
       let newLayer: any;
-      newLayer = await this.createLayerInstance(this.selectedLayerTypeForAll, transformedData, layerId);
+      if (this.layerMode === 'clustering' &&
+          (this.selectedLayerTypeForAll === 'geojson' || this.selectedLayerTypeForAll === 'feature' || this.selectedLayerTypeForAll === 'csv')) {
+        newLayer = await this.createClusteredLayer(transformedData, layerId);
+      } else {
+        newLayer = await this.createLayerInstance(this.selectedLayerTypeForAll, transformedData, layerId);
+      }
 
       if (newLayer) {
         this.map.add(newLayer);
@@ -1462,6 +1482,8 @@ export class EsriMapComponent implements OnInit, OnDestroy, OnChanges {
       });
     });
 
+    const clusterConfig = this.getClusterConfig();
+
     return new FeatureLayer({
       source: graphics,
       objectIdField: 'OBJECTID',
@@ -1469,10 +1491,146 @@ export class EsriMapComponent implements OnInit, OnDestroy, OnChanges {
       fields: [
         { name: 'OBJECTID', type: 'oid' },
         { name: 'id', type: 'string' },
-        { name: 'mag', type: 'double' }
+        { name: 'latitude', type: 'double' },
+        { name: 'longitude', type: 'double' },
+        { name: 'mag', type: 'double' },
+        { name: 'magnitude_type', type: 'string' },
+        { name: 'place', type: 'string' },
+        { name: 'time', type: 'string' },
+        { name: 'depth', type: 'double' },
+        { name: 'status', type: 'string' },
+        { name: 'felt_reports', type: 'integer' },
+        { name: 'significant', type: 'string' },
+        { name: 'tsunami', type: 'string' },
+        { name: 'reported_by', type: 'string' }
       ],
-      renderer: new SimpleRenderer({ symbol: this.getSymbolForType(layerId) })
+      renderer: new SimpleRenderer({ symbol: this.getSymbolForType(layerId) }),
+      featureReduction: clusterConfig,
+      popupTemplate: {
+        title: 'Feature ({id})',
+        content: '<b>Magnitude:</b> {mag}<br><b>Location:</b> {place}<br><b>Depth:</b> {depth}<br><b>Status:</b> {status}'
+      }
     });
+  }
+
+  private getClusterConfig(): any {
+    switch (this.selectedClusteringType) {
+      case 'dynamic':
+        return this.getDynamicClusterConfig();
+      case 'chart':
+        return this.getChartClusterConfig();
+      case 'standard':
+      default:
+        return this.getStandardClusterConfig();
+    }
+  }
+
+  private getDynamicClusterConfig(): any {
+    return {
+      type: 'cluster',
+      clusterRadius: '100px',
+      clusterMinSize: '24px',
+      clusterMaxSize: '60px',
+      labelingInfo: [{
+        deconflictionStrategy: 'none',
+        labelExpressionInfo: {
+          expression: "Text($feature.cluster_count, '#,###')"
+        },
+        symbol: {
+          type: 'text',
+          color: '#FFFFFF',
+          font: { weight: 'bold', family: 'Noto Sans', size: '12px' }
+        },
+        labelPlacement: 'center-center'
+      }],
+      popupTemplate: {
+        title: 'Cluster Summary',
+        content: '<b>Features:</b> {cluster_count}<br><b>Avg Magnitude:</b> {cluster_avg_mag}'
+      },
+      clusterFields: [{
+        fieldName: 'mag',
+        statisticType: 'avg',
+        outStatisticFieldName: 'cluster_avg_mag'
+      }, {
+        fieldName: 'depth',
+        statisticType: 'avg',
+        outStatisticFieldName: 'cluster_avg_depth'
+      }]
+    };
+  }
+
+  private getChartClusterConfig(): any {
+    return {
+      type: 'cluster',
+      clusterRadius: '120px',
+      clusterMinSize: '30px',
+      clusterMaxSize: '70px',
+      labelingInfo: [{
+        deconflictionStrategy: 'none',
+        labelExpressionInfo: {
+          expression: "Text($feature.cluster_count, '#,###')"
+        },
+        symbol: {
+          type: 'text',
+          color: '#FFFFFF',
+          font: { weight: 'bold', family: 'Noto Sans', size: '11px' },
+          haloColor: '#333333',
+          haloSize: '1px'
+        },
+        labelPlacement: 'center-center'
+      }],
+      popupTemplate: {
+        title: 'Chart Cluster',
+        content: [
+          {
+            type: 'text',
+            text: '<b>Total Features:</b> {cluster_count}'
+          },
+          {
+            type: 'text',
+            text: '<b>Avg Magnitude:</b> {cluster_avg_mag}<br><b>Max Magnitude:</b> {cluster_max_mag}<br><b>Min Depth:</b> {cluster_min_depth}'
+          }
+        ]
+      },
+      clusterFields: [{
+        fieldName: 'mag',
+        statisticType: 'avg',
+        outStatisticFieldName: 'cluster_avg_mag'
+      }, {
+        fieldName: 'mag',
+        statisticType: 'max',
+        outStatisticFieldName: 'cluster_max_mag'
+      }, {
+        fieldName: 'depth',
+        statisticType: 'min',
+        outStatisticFieldName: 'cluster_min_depth'
+      }]
+    };
+  }
+
+  private getStandardClusterConfig(): any {
+    return {
+      type: 'cluster',
+      clusterRadius: '80px',
+      clusterMinSize: '20px',
+      clusterMaxSize: '50px',
+      labelingInfo: [{
+        deconflictionStrategy: 'none',
+        labelExpressionInfo: {
+          expression: "Text($feature.cluster_count, '#,###')"
+        },
+        symbol: {
+          type: 'text',
+          color: '#FFFFFF',
+          font: { weight: 'bold', family: 'Noto Sans', size: '12px' }
+        },
+        labelPlacement: 'center-center'
+      }],
+      popupTemplate: {
+        title: 'Cluster ({cluster_count} features)',
+        content: '<b>Number of features:</b> {cluster_count}'
+      }
+    };
   }
 
   async onLazyLoadingApplySettings(settings: any): Promise<void> {
@@ -1524,6 +1682,11 @@ export class EsriMapComponent implements OnInit, OnDestroy, OnChanges {
   getCurrentLayerInfo(): string {
     const layer = this.layerTypes.find(l => l.id === this.selectedLayerType);
     return layer ? layer.description : 'No layer selected';
+  }
+
+  getLayerName(layerId: string): string {
+    const layer = this.layerTypes.find(l => l.id === layerId);
+    return layer ? layer.name : layerId;
   }
 
   cleanupAllLayers(): void {

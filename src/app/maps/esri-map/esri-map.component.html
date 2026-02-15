@@ -30,6 +30,14 @@
         </div>
       </div>
     </div>
+
+    <!-- Legend -->
+    <div class="map-legend" *ngIf="activeLayerIds.size > 0">
+      <div class="legend-item" *ngFor="let layerId of activeLayerIds">
+        <span class="legend-color" [style.background-color]="getLayerColorStyle(layerId)"></span>
+        <span class="legend-name">{{ getLayerName(layerId) }}</span>
+      </div>
+    </div>
   </div>
 
   <!-- Control Panel Component (30%) -->
@@ -88,6 +96,8 @@
     (entitiesAmountChange)="onPanelEntitiesAmountChange($event)"
     (applySettings)="applySettings()"
     (settingsChange)="onSettingsChange()"
+    (clusteringTypeChange)="onPanelClusteringTypeChange($event)"
+    (analysisMethodChange)="onPanelAnalysisMethodChange($event)"
     (historyToggle)="toggleHistory()"
     (historyClear)="clearHistory()"
     (cleanup)="cleanupAllLayers()"
