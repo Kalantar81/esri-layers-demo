@@ -1,0 +1,27 @@
+<div class="stats-info">
+  <h4>Statistics:</h4>
+  <div class="stat-item">
+    <span class="stat-label">Active Layers:</span>
+    <span class="stat-value">{{ activeLayerCount }} / 22</span>
+  </div>
+  <div class="stat-item">
+    <span class="stat-label">Total Entities:</span>
+    <span class="stat-value">{{ totalEntities | number }}</span>
+  </div>
+  <div class="stat-item">
+    <span class="stat-label">Layer Type:</span>
+    <span class="stat-value">{{ layerTypeName }}</span>
+  </div>
+  <div class="stat-item">
+    <span class="stat-label">Symbol Type:</span>
+    <span class="stat-value">{{ symbolTypeName }}</span>
+  </div>
+  <div class="stat-item">
+    <span class="stat-label">Loading Time:</span>
+    <span class="stat-value">{{ totalLoadingTime }} ms</span>
+  </div>
+  <div class="stat-item" *ngIf="lastLoadedTime">
+    <span class="stat-label">Loaded At:</span>
+    <span class="stat-value">{{ lastLoadedTime }}</span>
+  </div>
+</div>
