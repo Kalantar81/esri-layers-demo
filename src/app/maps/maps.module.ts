@@ -18,6 +18,15 @@ import { LayerControlButtonComponent } from './layer-control-button/layer-contro
 import { StatusInfoComponent } from './esri-map/components/status-info/status-info.component';
 import { HistorySectionComponent } from './esri-map/components/history-section/history-section.component';
 import { ControlPanelClusteringComponent } from './esri-map/control-panels/control-panel-clustering/control-panel-clustering.component';
+import { LayerTypeSelectorComponent } from './esri-map/control-panels/controls/layer-type-selector/layer-type-selector.component';
+import { SymbolTypeSelectorComponent } from './esri-map/control-panels/controls/symbol-type-selector/symbol-type-selector.component';
+import { EntitiesInputComponent } from './esri-map/control-panels/controls/entities-input/entities-input.component';
+import { BulkAmountInputComponent } from './esri-map/control-panels/controls/bulk-amount-input/bulk-amount-input.component';
+import { ClusteringControlsComponent } from './esri-map/control-panels/controls/clustering-controls/clustering-controls.component';
+import { BasemapSelectorComponent } from './esri-map/control-panels/controls/basemap-selector/basemap-selector.component';
+import { ClusteringTypeSelectorComponent } from './esri-map/control-panels/controls/clustering-type-selector/clustering-type-selector.component';
+import { AnalysisMethodSelectorComponent } from './esri-map/control-panels/controls/analysis-method-selector/analysis-method-selector.component';
+import { EntitiesInputWithTotalComponent } from './esri-map/control-panels/controls/entities-input-with-total/entities-input-with-total.component';
 
 
 @NgModule({
@@ -29,7 +38,16 @@ import { ControlPanelClusteringComponent } from './esri-map/control-panels/contr
     LayerControlButtonComponent,
     StatusInfoComponent,
     HistorySectionComponent,
-    ControlPanelClusteringComponent
+    ControlPanelClusteringComponent,
+    LayerTypeSelectorComponent,
+    SymbolTypeSelectorComponent,
+    EntitiesInputComponent,
+    BulkAmountInputComponent,
+    ClusteringControlsComponent,
+    BasemapSelectorComponent,
+    ClusteringTypeSelectorComponent,
+    AnalysisMethodSelectorComponent,
+    EntitiesInputWithTotalComponent
   ],
   imports: [
     CommonModule,

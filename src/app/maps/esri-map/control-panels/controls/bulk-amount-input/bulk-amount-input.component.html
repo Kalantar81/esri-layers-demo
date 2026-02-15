@@ -1,0 +1,12 @@
+<div class="control-group">
+  <label for="bulkAmount">Page Size (Entities per Batch):</label>
+  <input
+    type="number"
+    id="bulkAmount"
+    [formControl]="control"
+    min="100"
+    max="100000"
+    step="100"
+    placeholder="Number of entities per batch">
+  <small class="hint">Load {{ control.value | number }} entities per batch</small>
+</div>

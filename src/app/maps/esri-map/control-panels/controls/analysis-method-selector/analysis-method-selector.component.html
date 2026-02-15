@@ -1,0 +1,9 @@
+<div class="control-group">
+  <label for="analysisMethod">Analysis Method (Spatial Statistics):</label>
+  <select id="analysisMethod" [ngModel]="selectedMethod" (change)="onChange($event)" [disabled]="disabled">
+    <option value="multivariate">Multivariate Clustering</option>
+    <option value="hierarchical">Hierarchical Clustering</option>
+    <option value="k-means">K-Means Clustering</option>
+    <option value="high-low">High/Low Clustering (Getis-Ord)</option>
+  </select>
+</div>

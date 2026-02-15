@@ -2,95 +2,11 @@
   <h3>Lazy Loading Settings</h3>
 
   <form [formGroup]="settingsForm" (ngSubmit)="onSubmit()">
-    <div class="control-group">
-      <label for="layerType">Layer Type:</label>
-      <select id="layerType" formControlName="layerType">
-        <option value="geojson">GeoJSON Layer</option>
-        <option value="graphics">Graphics Layer</option>
-        <option value="feature">Feature Layer</option>
-        <option value="csv">CSV Layer</option>
-        <option value="feature-collection">Feature Layer (Collection)</option>
-        <option value="client-side">Feature Layer (Client-Side)</option>
-      </select>
-    </div>
-
-    <div class="control-group">
-      <label for="symbolType">Symbol Type:</label>
-      <select id="symbolType" formControlName="symbolType">
-        <option value="simple-marker">Simple Marker (Point)</option>
-        <option value="circle">Circle</option>
-        <option value="square">Square</option>
-        <option value="diamond">Diamond</option>
-        <option value="cross">Cross</option>
-        <option value="x">X Symbol</option>
-        <option value="triangle">Triangle</option>
-        <option value="picture-marker">Picture Marker (SVG)</option>
-        <option value="complex-svg">Complex SVG</option>
-        <option value="png-image">Custom Icon (Different per layer)</option>
-      </select>
-    </div>
-
-    <div class="control-group">
-      <label for="entitiesPerLayer">Entities Per Layer:</label>
-      <input
-        type="number"
-        id="entitiesPerLayer"
-        formControlName="entitiesPerLayer"
-        min="100"
-        max="100000"
-        step="100"
-        placeholder="Number of entities per layer">
-      <small class="hint">{{ settingsForm.get('entitiesPerLayer')?.value | number }} entities per layer</small>
-    </div>
-
-    <div class="control-group">
-      <label>
-        <input type="checkbox" formControlName="enableClustering">
-        Enable Clustering
-      </label>
-    </div>
-
-    <div class="control-group" *ngIf="settingsForm.get('enableClustering')?.value">
-      <label for="clusteringType">Clustering Type:</label>
-      <select id="clusteringType" formControlName="clusteringType">
-        <option value="dynamic">Dynamic Feature Clustering</option>
-        <option value="chart">Chart Clustering</option>
-        <option value="standard">Standard Clustering</option>
-      </select>
-    </div>
-
-    <div class="control-group" *ngIf="settingsForm.get('enableClustering')?.value">
-      <label for="analysisMethod">Analysis Method (Spatial Statistics):</label>
-      <select id="analysisMethod" formControlName="analysisMethod">
-        <option value="multivariate">Multivariate Clustering</option>
-        <option value="hierarchical">Hierarchical Clustering</option>
-        <option value="k-means">K-Means Clustering</option>
-        <option value="high-low">High/Low Clustering (Getis-Ord)</option>
-      </select>
-    </div>
-
-    <div class="control-group" *ngIf="settingsForm.get('enableClustering')?.value">
-      <label for="loadingStrategy">Loading Strategy:</label>
-      <select id="loadingStrategy" formControlName="loadingStrategy">
-        <option value="query-task-pagination">QueryTask Pagination</option>
-        <option value="graphics-layer-batches">GraphicsLayer Batches</option>
-        <option value="clustering">Clustering</option>
-        <option value="max-record-count">Max Record Count</option>
-      </select>
-    </div>
-
-    <div class="control-group">
-      <label for="bulkAmount">Page Size (Entities per Batch):</label>
-      <input
-        type="number"
-        id="bulkAmount"
-        formControlName="bulkAmount"
-        min="100"
-        max="100000"
-        step="100"
-        placeholder="Number of entities per batch">
-      <small class="hint">Load {{ settingsForm.get('bulkAmount')?.value | number }} entities per batch</small>
-    </div>
+    <app-layer-type-selector [control]="$any(settingsForm.get('layerType'))"></app-layer-type-selector>
+    <app-symbol-type-selector [control]="$any(settingsForm.get('symbolType'))"></app-symbol-type-selector>
+    <app-entities-input [control]="$any(settingsForm.get('entitiesPerLayer'))"></app-entities-input>
+    <app-clustering-controls [formGroup]="settingsForm"></app-clustering-controls>
+    <app-bulk-amount-input [control]="$any(settingsForm.get('bulkAmount'))"></app-bulk-amount-input>
 
     <button type="submit" class="apply-button">
       Apply Settings

@@ -33,7 +33,7 @@
     font-size: 14px;
   }
 
-  select, input[type="number"] {
+  select {
     width: 100%;
     padding: 10px;
     border: 1px solid #ccc;
@@ -60,34 +60,6 @@
       opacity: 0.6;
     }
   }
-
-  input[type="number"] {
-    cursor: text;
-  }
-
-  .hint {
-    display: block;
-    margin-top: 5px;
-    font-size: 11px;
-    color: #888;
-    font-style: italic;
-  }
-
-  .total-entities {
-    display: block;
-    margin-top: 12px;
-    padding: 10px;
-    background-color: #e8f4fd;
-    border-left: 4px solid #0079c1;
-    border-radius: 2px;
-    font-size: 13px;
-    color: #333;
-
-    strong {
-      color: #0079c1;
-      font-weight: 600;
-    }
-  }
 }
 
 .apply-button {
@@ -101,6 +73,7 @@
   font-weight: 600;
   cursor: pointer;
   transition: background-color 0.3s;
+  margin-bottom: 20px;
   box-sizing: border-box;
 
   &:hover:not(:disabled) {

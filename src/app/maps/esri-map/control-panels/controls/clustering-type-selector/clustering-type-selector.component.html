@@ -1,0 +1,8 @@
+<div class="control-group">
+  <label for="clusteringType">Clustering Type:</label>
+  <select id="clusteringType" [ngModel]="selectedType" (change)="onChange($event)" [disabled]="disabled">
+    <option value="dynamic">Dynamic Feature Clustering</option>
+    <option value="chart">Chart Clustering</option>
+    <option value="standard">Standard Clustering</option>
+  </select>
+</div>

@@ -1,0 +1,17 @@
+<div class="control-group">
+  <label for="entitiesAmount">Entities Per Layer:</label>
+  <input
+    type="number"
+    id="entitiesAmount"
+    [ngModel]="entitiesAmount"
+    (change)="onChange($event)"
+    [disabled]="disabled"
+    min="100"
+    max="100000"
+    step="100"
+    placeholder="Enter number per layer">
+  <small class="hint">Per layer: {{ entitiesAmount | number }} entities</small>
+  <div class="total-entities">
+    <strong>Total Entities:</strong> {{ getTotalEntities() | number }}
+  </div>
+</div>

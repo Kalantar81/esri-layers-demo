@@ -1,18 +1,16 @@
 <div class="control-panel">
   <h3>Control Panel</h3>
 
-  <div class="control-group">
-    <label for="basemap">Basemap:</label>
-    <select id="basemap" [ngModel]="selectedBasemap" (change)="onBasemapChange($event)" [disabled]="isLoading">
-      <option *ngFor="let basemap of basemapOptions" [value]="basemap.id">
-        {{ basemap.name }}
-      </option>
-    </select>
-  </div>
+  <app-basemap-selector
+    [selectedBasemap]="selectedBasemap"
+    [basemapOptions]="basemapOptions"
+    [disabled]="isLoading"
+    (basemapChange)="onBasemapChange($event)">
+  </app-basemap-selector>
 
   <div class="control-group">
     <label for="layerType">Layer Type:</label>
-    <select id="layerType" [ngModel]="selectedLayerTypeForAll" (change)="onLayerTypeChange($event)" [disabled]="isLoading">
+    <select id="layerType" [ngModel]="selectedLayerTypeForAll" (ngModelChange)="onLayerTypeChange($event)" [disabled]="isLoading">
       <option value="geojson">GeoJSON Layer (enable clustering)</option>
       <option value="graphics">Graphics Layer</option>
       <option value="feature">Feature Layer (enable clustering)</option>
@@ -24,7 +22,7 @@
 
   <div class="control-group">
     <label for="symbolType">Symbol Type:</label>
-    <select id="symbolType" [ngModel]="selectedSymbolType" (change)="onSymbolTypeChange($event)" [disabled]="isLoading">
+    <select id="symbolType" [ngModel]="selectedSymbolType" (ngModelChange)="onSymbolTypeChange($event)" [disabled]="isLoading">
       <option value="simple-marker">Simple Marker (Point)</option>
       <option value="circle">Circle</option>
       <option value="square">Square</option>
@@ -38,42 +36,24 @@
     </select>
   </div>
 
-  <div class="control-group">
-    <label for="clusteringType">Clustering Type:</label>
-    <select id="clusteringType" [ngModel]="selectedClusteringType" (change)="onClusteringTypeChange($event)" [disabled]="isLoading">
-      <option value="dynamic">Dynamic Feature Clustering</option>
-      <option value="chart">Chart Clustering</option>
-      <option value="standard">Standard Clustering</option>
-    </select>
-  </div>
+  <app-clustering-type-selector
+    [selectedType]="selectedClusteringType"
+    [disabled]="isLoading"
+    (typeChange)="onClusteringTypeChange($event)">
+  </app-clustering-type-selector>
 
-  <div class="control-group">
-    <label for="analysisMethod">Analysis Method (Spatial Statistics):</label>
-    <select id="analysisMethod" [ngModel]="selectedAnalysisMethod" (change)="onAnalysisMethodChange($event)" [disabled]="isLoading">
-      <option value="multivariate">Multivariate Clustering</option>
-      <option value="hierarchical">Hierarchical Clustering</option>
-      <option value="k-means">K-Means Clustering</option>
-      <option value="high-low">High/Low Clustering (Getis-Ord)</option>
-    </select>
-  </div>
+  <app-analysis-method-selector
+    [selectedMethod]="selectedAnalysisMethod"
+    [disabled]="isLoading"
+    (methodChange)="onAnalysisMethodChange($event)">
+  </app-analysis-method-selector>
 
-  <div class="control-group">
-    <label for="entitiesAmount">Entities Per Layer:</label>
-    <input
-      type="number"
-      id="entitiesAmount"
-      [ngModel]="entitiesAmount"
-      (change)="onEntitiesAmountChange($event)"
-      [disabled]="isLoading"
-      min="100"
-      max="100000"
-      step="100"
-      placeholder="Enter number per layer">
-    <small class="hint">Per layer: {{ entitiesAmount | number }} entities</small>
-    <div class="total-entities">
-      <strong>Total Entities:</strong> {{ getTotalEntities() | number }}
-    </div>
-  </div>
+  <app-entities-input-with-total
+    [entitiesAmount]="entitiesAmount"
+    [totalLayers]="22"
+    [disabled]="isLoading"
+    (entitiesChange)="onEntitiesAmountChange($event)">
+  </app-entities-input-with-total>
 
   <button 
     class="apply-button" 

@@ -1,0 +1,37 @@
+<div [formGroup]="formGroup">
+  <div class="control-group">
+    <label>
+      <input type="checkbox" formControlName="enableClustering">
+      Enable Clustering
+    </label>
+  </div>
+
+  <div class="control-group" *ngIf="formGroup.get('enableClustering')?.value">
+    <label for="clusteringType">Clustering Type:</label>
+    <select id="clusteringType" formControlName="clusteringType">
+      <option value="dynamic">Dynamic Feature Clustering</option>
+      <option value="chart">Chart Clustering</option>
+      <option value="standard">Standard Clustering</option>
+    </select>
+  </div>
+
+  <div class="control-group" *ngIf="formGroup.get('enableClustering')?.value">
+    <label for="analysisMethod">Analysis Method (Spatial Statistics):</label>
+    <select id="analysisMethod" formControlName="analysisMethod">
+      <option value="multivariate">Multivariate Clustering</option>
+      <option value="hierarchical">Hierarchical Clustering</option>
+      <option value="k-means">K-Means Clustering</option>
+      <option value="high-low">High/Low Clustering (Getis-Ord)</option>
+    </select>
+  </div>
+
+  <div class="control-group" *ngIf="formGroup.get('enableClustering')?.value">
+    <label for="loadingStrategy">Loading Strategy:</label>
+    <select id="loadingStrategy" formControlName="loadingStrategy">
+      <option value="query-task-pagination">QueryTask Pagination</option>
+      <option value="graphics-layer-batches">GraphicsLayer Batches</option>
+      <option value="clustering">Clustering</option>
+      <option value="max-record-count">Max Record Count</option>
+    </select>
+  </div>
+</div>

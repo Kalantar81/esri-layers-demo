@@ -45,35 +45,35 @@ export class ControlPanelClusteringComponent implements OnInit, OnDestroy {
     }
   }
 
-  onBasemapChange(event: any): void {
-    this.basemapChange.emit(event.target.value);
+  onBasemapChange(value: string): void {
+    this.basemapChange.emit(value);
     this.settingsChange.emit();
   }
 
-  onLayerTypeChange(event: any): void {
-    this.layerTypeChange.emit(event.target.value);
+  onLayerTypeChange(value: string): void {
+    this.layerTypeChange.emit(value);
     this.settingsChange.emit();
   }
 
-  onSymbolTypeChange(event: any): void {
-    this.symbolTypeChange.emit(event.target.value);
+  onSymbolTypeChange(value: string): void {
+    this.symbolTypeChange.emit(value);
     this.settingsChange.emit();
   }
 
-  onClusteringTypeChange(event: any): void {
-    this.selectedClusteringType = event.target.value;
-    this.clusteringTypeChange.emit(event.target.value);
+  onClusteringTypeChange(value: string): void {
+    this.selectedClusteringType = value;
+    this.clusteringTypeChange.emit(value);
     this.settingsChange.emit();
   }
 
-  onAnalysisMethodChange(event: any): void {
-    this.selectedAnalysisMethod = event.target.value;
-    this.analysisMethodChange.emit(event.target.value);
+  onAnalysisMethodChange(value: string): void {
+    this.selectedAnalysisMethod = value;
+    this.analysisMethodChange.emit(value);
     this.settingsChange.emit();
   }
 
-  onEntitiesAmountChange(event: any): void {
-    this.entitiesAmountChange.emit(parseInt(event.target.value, 10));
+  onEntitiesAmountChange(value: number): void {
+    this.entitiesAmountChange.emit(value);
     this.settingsChange.emit();
   }
 

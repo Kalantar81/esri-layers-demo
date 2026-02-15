@@ -1,0 +1,12 @@
+<div class="control-group">
+  <label for="entitiesPerLayer">Entities Per Layer:</label>
+  <input
+    type="number"
+    id="entitiesPerLayer"
+    [formControl]="control"
+    min="100"
+    max="100000"
+    step="100"
+    placeholder="Number of entities per layer">
+  <small class="hint">{{ control.value | number }} entities per layer</small>
+</div>

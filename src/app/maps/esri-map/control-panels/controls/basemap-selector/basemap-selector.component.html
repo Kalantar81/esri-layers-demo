@@ -1,0 +1,8 @@
+<div class="control-group">
+  <label for="basemap">Basemap:</label>
+  <select id="basemap" [ngModel]="selectedBasemap" (change)="onChange($event)" [disabled]="disabled">
+    <option *ngFor="let basemap of basemapOptions" [value]="basemap.id">
+      {{ basemap.name }}
+    </option>
+  </select>
+</div>
