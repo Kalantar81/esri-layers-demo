@@ -1,51 +1,57 @@
 <div class="maps-layout">
-  <!-- Header with Toolbar -->
-  <p-toolbar class="maps-header toolbar">
+  <!-- Header with PrimeNG Toolbar -->
+  <p-toolbar class="maps-header">
+    <!-- Left Section: Logo/Title -->
     <div class="toolbar-left">
       <h2>ESRI Layers Demo</h2>
     </div>
-    
+
+    <!-- Center Section: Action Buttons -->
     <div class="toolbar-middle">
       <!-- Layers Toggle Button -->
       <button 
         pButton 
         type="button" 
+        pRipple
         icon="pi pi-layer-plus" 
         label="Layers"
         [pTooltip]="'Toggle all layers visibility'"
         tooltipPosition="bottom"
         (click)="onLayersToggle()"
         [class.active]="layerMode === 'layers'"
-        class="toolbar-btn">
+        class="p-button-text toolbar-btn">
       </button>
 
       <!-- Lazy Loading Button -->
       <button 
         pButton 
         type="button" 
+        pRipple
         icon="pi pi-cloud-download" 
         label="Lazy Loading"
         [pTooltip]="'Enable/Disable lazy loading of layers'"
         tooltipPosition="bottom"
         (click)="onLazyLoadingToggle()"
         [class.active]="layerMode === 'lazy-loading'"
-        class="toolbar-btn">
+        class="p-button-text toolbar-btn">
       </button>
 
       <!-- Clustering Button -->
       <button 
         pButton 
         type="button" 
+        pRipple
         icon="pi pi-sitemap" 
         label="Clustering"
         [pTooltip]="'Enable/Disable clustering of layer entities'"
         tooltipPosition="bottom"
         (click)="onClusteringToggle()"
         [class.active]="layerMode === 'clustering'"
-        class="toolbar-btn">
+        class="p-button-text toolbar-btn">
       </button>
     </div>
 
+    <!-- Right Section: Mode Indicator -->
     <div class="toolbar-right">
       <span class="mode-indicator">Mode: <strong>{{ getModeLabel() }}</strong></span>
     </div>

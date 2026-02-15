@@ -5,6 +5,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { TooltipModule } from 'primeng/tooltip';
 import { ToolbarModule } from 'primeng/toolbar';
 import { ButtonModule } from 'primeng/button';
+import { RippleModule } from 'primeng/ripple';
 
 import { MapsRoutingModule } from './maps-routing.module';
 import { EsriMapComponent } from './esri-map/esri-map.component';
@@ -26,7 +27,8 @@ import { LayersService } from './services/layers.service';
     MapsRoutingModule,
     TooltipModule,
     ToolbarModule,
-    ButtonModule
+    ButtonModule,
+    RippleModule
   ],
   providers: [
     LayersService
