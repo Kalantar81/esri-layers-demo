@@ -49,6 +49,13 @@
         [class.active]="layerMode === 'clustering'"
         class="p-button-text toolbar-btn">
       </button>
+
+      <!-- Legend Toggle Switch -->
+      <div class="legend-toggle">
+        <label>Custom</label>
+        <p-inputSwitch [(ngModel)]="useEsriLegend" (onChange)="onLegendToggle()" />
+        <label>Esri</label>
+      </div>
     </div>
 
     <!-- Right Section: Mode Indicator -->

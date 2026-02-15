@@ -6,6 +6,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { ToolbarModule } from 'primeng/toolbar';
 import { ButtonModule } from 'primeng/button';
 import { RippleModule } from 'primeng/ripple';
+import { InputSwitchModule } from 'primeng/inputswitch';
 
 import { MapsRoutingModule } from './maps-routing.module';
 import { EsriMapComponent } from './esri-map/esri-map.component';
@@ -39,7 +40,8 @@ import { ControlPanelClusteringComponent } from './esri-map/control-panels/contr
     TooltipModule,
     ToolbarModule,
     ButtonModule,
-    RippleModule
+    RippleModule,
+    InputSwitchModule
   ],
   providers: [
     LayersService

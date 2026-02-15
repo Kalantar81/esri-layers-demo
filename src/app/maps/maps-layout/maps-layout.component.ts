@@ -21,8 +21,8 @@ interface HistoryEntry {
 export class MapsLayoutComponent implements OnInit, OnDestroy {
   @ViewChild('esriMap') esriMap!: EsriMapComponent;
 
-  // Layer mode state
   layerMode: 'layers' | 'lazy-loading' | 'clustering' = 'layers';
+  useEsriLegend: boolean = false;
 
   // Control panel state
   selectedBasemap: string = 'streets-vector';
@@ -101,6 +101,12 @@ export class MapsLayoutComponent implements OnInit, OnDestroy {
     this.router.navigate(['/control-panel-clustering']);
     this.esriMap.removeAllLayers();
     this.resetControlPanel();
+  }
+
+  onLegendToggle(): void {
+    if (this.esriMap) {
+      this.esriMap.setLegendType(this.useEsriLegend ? 'esri' : 'custom');
+    }
   }
 
   getModeLabel(): string {

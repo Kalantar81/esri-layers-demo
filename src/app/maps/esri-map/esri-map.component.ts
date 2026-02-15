@@ -1,4 +1,5 @@
 import { Component, OnInit, OnDestroy, ViewChild, ElementRef, Input, OnChanges, SimpleChanges, ChangeDetectorRef } from '@angular/core';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { LayersService } from '../services/layers.service';
 import { ContolPanelLazyLoadingComponent } from './control-panels/contol-panel-lazy-loading/contol-panel-lazy-loading.component';
 import esriConfig from '@arcgis/core/config';
@@ -11,6 +12,7 @@ import Point from '@arcgis/core/geometry/Point';
 import FeatureLayer from '@arcgis/core/layers/FeatureLayer';
 import CSVLayer from '@arcgis/core/layers/CSVLayer';
 import SimpleRenderer from '@arcgis/core/renderers/SimpleRenderer';
+import Legend from '@arcgis/core/widgets/Legend';
 
 interface LayerType {
   id: string;
@@ -36,6 +38,7 @@ interface HistoryEntry {
 })
 export class EsriMapComponent implements OnInit, OnDestroy, OnChanges {
   @ViewChild('mapViewNode', { static: true }) private mapViewEl!: ElementRef;
+  @ViewChild('legendNode', { static: true }) private legendEl!: ElementRef;
   @ViewChild('lazyLoadingPanel') private lazyLoadingPanel!: ContolPanelLazyLoadingComponent;
   @Input() layerMode: 'layers' | 'lazy-loading' | 'clustering' = 'layers';
 
@@ -43,8 +46,10 @@ export class EsriMapComponent implements OnInit, OnDestroy, OnChanges {
   private map: any = null;
   private currentLayer: any = null;
   private fullDataset: any = null;
-  private activeLayers: Map<string, any> = new Map(); // Store multiple active layers
-  activeLayerIds: Set<string> = new Set(); // Track active layer IDs for Angular binding
+  private activeLayers: Map<string, any> = new Map();
+  activeLayerIds: Set<string> = new Set();
+  private legendWidget: any = null;
+  legendType: 'esri' | 'custom' = 'custom';
 
   selectedLayerType: string = 'geojson';
   selectedLayerTypeForAll: 'geojson' | 'graphics' | 'feature' | 'csv' | 'feature-collection' | 'client-side' = 'geojson';
@@ -310,7 +315,7 @@ export class EsriMapComponent implements OnInit, OnDestroy, OnChanges {
     }
   ];
 
-  constructor(private layersService: LayersService, private cdr: ChangeDetectorRef) {}
+  constructor(private layersService: LayersService, private cdr: ChangeDetectorRef, private sanitizer: DomSanitizer) {}
 
   ngOnInit(): void {
     this.initializeMap();
@@ -346,6 +351,11 @@ export class EsriMapComponent implements OnInit, OnDestroy, OnChanges {
       });
 
       await this.view.when();
+
+      const legend = new Legend({
+        view: this.view,
+        container: this.legendEl.nativeElement
+      });
 
     } catch (error) {
       console.error('Error initializing map:', error);
@@ -993,6 +1003,7 @@ export class EsriMapComponent implements OnInit, OnDestroy, OnChanges {
 
     return new GeoJSONLayer({
       url: url,
+      title: this.getLayerName(layerId),
       renderer: new SimpleRenderer({
         symbol: this.getSymbolForType(layerId)
       }),
@@ -1010,7 +1021,7 @@ export class EsriMapComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   private async buildGraphicsLayer(data: any, layerId: string): Promise<any> {
-    const layer = new GraphicsLayer();
+    const layer = new GraphicsLayer({ title: this.getLayerName(layerId) });
 
     const features = data.features || [];
     const symbol = this.getSymbolForType(layerId);
@@ -1060,6 +1071,7 @@ export class EsriMapComponent implements OnInit, OnDestroy, OnChanges {
 
     return new FeatureLayer({
       source: graphics,
+      title: this.getLayerName(layerId),
       objectIdField: 'OBJECTID',
       fields: [
         { name: 'OBJECTID', type: 'oid' },
@@ -1108,6 +1120,7 @@ export class EsriMapComponent implements OnInit, OnDestroy, OnChanges {
 
     return new CSVLayer({
       url: url,
+      title: this.getLayerName(layerId),
       latitudeField: 'latitude',
       longitudeField: 'longitude',
       renderer: new SimpleRenderer({
@@ -1157,6 +1170,7 @@ export class EsriMapComponent implements OnInit, OnDestroy, OnChanges {
 
     return new FeatureLayer({
       source: featureSet,
+      title: this.getLayerName(layerId),
       objectIdField: 'ObjectID',
       geometryType: 'point',
       fields: [
@@ -1223,6 +1237,7 @@ export class EsriMapComponent implements OnInit, OnDestroy, OnChanges {
 
     return new FeatureLayer({
       source: graphics,
+      title: this.getLayerName(layerId),
       objectIdField: 'OBJECTID',
       geometryType: 'point',
       spatialReference: { wkid: 4326 },
@@ -1486,6 +1501,7 @@ export class EsriMapComponent implements OnInit, OnDestroy, OnChanges {
 
     return new FeatureLayer({
       source: graphics,
+      title: this.getLayerName(layerId),
       objectIdField: 'OBJECTID',
       geometryType: 'point',
       fields: [
@@ -1721,6 +1737,39 @@ export class EsriMapComponent implements OnInit, OnDestroy, OnChanges {
     return icons[layerId] || `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="${rgbColor}" stroke="white" stroke-width="2"/></svg>`;
   }
 
+  getLayerSvgIcon(layerId: string): SafeHtml {
+    const color = this.getColorForLayer(layerId);
+    const rgbColor = `rgb(${color[0]},${color[1]},${color[2]})`;
+    
+    const svgShapes: { [key: string]: string } = {
+      'geojson': `<circle cx="12" cy="12" r="10" fill="${rgbColor}" stroke="white" stroke-width="2"/>`,
+      'graphics': `<polygon points="12,2 22,12 12,22 2,12" fill="${rgbColor}" stroke="white" stroke-width="2"/>`,
+      'feature': `<rect x="4" y="4" width="16" height="16" fill="${rgbColor}" stroke="white" stroke-width="2"/>`,
+      'csv': `<polygon points="12,2 22,20 2,20" fill="${rgbColor}" stroke="white" stroke-width="2"/>`,
+      'feature-collection': `<polygon points="12,2 21,7 21,17 12,22 3,17 3,7" fill="${rgbColor}" stroke="white" stroke-width="2"/>`,
+      'client-side': `<polygon points="12,2 15,10 23,10 17,16 20,24 12,18 4,24 7,16 1,10 9,10" fill="${rgbColor}" stroke="white" stroke-width="1"/>`,
+      'geojson-2': `<circle cx="12" cy="12" r="10" fill="${rgbColor}" stroke="white" stroke-width="2"/>`,
+      'graphics-2': `<polygon points="12,2 22,12 12,22 2,12" fill="${rgbColor}" stroke="white" stroke-width="2"/>`,
+      'feature-2': `<rect x="4" y="4" width="16" height="16" fill="${rgbColor}" stroke="white" stroke-width="2"/>`,
+      'csv-2': `<polygon points="12,2 22,20 2,20" fill="${rgbColor}" stroke="white" stroke-width="2"/>`,
+      'collection-2': `<polygon points="12,2 21,7 21,17 12,22 3,17 3,7" fill="${rgbColor}" stroke="white" stroke-width="2"/>`,
+      'client-side-2': `<polygon points="12,2 15,10 23,10 17,16 20,24 12,18 4,24 7,16 1,10 9,10" fill="${rgbColor}" stroke="white" stroke-width="1"/>`,
+      'geojson-3': `<circle cx="12" cy="12" r="10" fill="${rgbColor}" stroke="white" stroke-width="2"/>`,
+      'graphics-3': `<polygon points="12,2 22,12 12,22 2,12" fill="${rgbColor}" stroke="white" stroke-width="2"/>`,
+      'feature-3': `<rect x="4" y="4" width="16" height="16" fill="${rgbColor}" stroke="white" stroke-width="2"/>`,
+      'csv-3': `<polygon points="12,2 22,20 2,20" fill="${rgbColor}" stroke="white" stroke-width="2"/>`,
+      'collection-3': `<polygon points="12,2 21,7 21,17 12,22 3,17 3,7" fill="${rgbColor}" stroke="white" stroke-width="2"/>`,
+      'client-side-3': `<polygon points="12,2 15,10 23,10 17,16 20,24 12,18 4,24 7,16 1,10 9,10" fill="${rgbColor}" stroke="white" stroke-width="1"/>`,
+      'geojson-4': `<circle cx="12" cy="12" r="10" fill="${rgbColor}" stroke="white" stroke-width="2"/>`,
+      'graphics-4': `<polygon points="12,2 22,12 12,22 2,12" fill="${rgbColor}" stroke="white" stroke-width="2"/>`,
+      'feature-4': `<rect x="4" y="4" width="16" height="16" fill="${rgbColor}" stroke="white" stroke-width="2"/>`,
+      'csv-4': `<polygon points="12,2 22,20 2,20" fill="${rgbColor}" stroke="white" stroke-width="2"/>`
+    };
+
+    const shape = svgShapes[layerId] || `<circle cx="12" cy="12" r="10" fill="${rgbColor}" stroke="white" stroke-width="2"/>`;
+    return this.sanitizer.bypassSecurityTrustHtml(shape);
+  }
+
   cleanupAllLayers(): void {
     this.activeLayers.forEach(layer => this.map.remove(layer));
     this.activeLayers.clear();
@@ -1738,8 +1787,47 @@ export class EsriMapComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   ngOnDestroy(): void {
+    if (this.legendWidget) {
+      this.legendWidget.destroy();
+    }
     if (this.view) {
       this.view.destroy();
+    }
+  }
+
+  toggleLegendType(): void {
+    this.legendType = this.legendType === 'esri' ? 'custom' : 'esri';
+    if (this.legendType === 'esri') {
+      this.createEsriLegend();
+    } else {
+      this.removeEsriLegend();
+    }
+  }
+
+  setLegendType(type: 'esri' | 'custom'): void {
+    this.legendType = type;
+    if (this.legendType === 'esri') {
+      this.createEsriLegend();
+    } else {
+      this.removeEsriLegend();
+    }
+  }
+
+  private createEsriLegend(): void {
+    if (this.legendWidget) {
+      this.legendWidget.destroy();
+    }
+    this.legendWidget = new Legend({
+      view: this.view
+    });
+    this.view.ui.add(this.legendWidget, 'bottom-left');
+  }
+
+  private removeEsriLegend(): void {
+    if (this.legendWidget) {
+      this.view.ui.remove(this.legendWidget);
+      this.legendWidget.destroy();
+      this.legendWidget = null;
     }
   }
 }
