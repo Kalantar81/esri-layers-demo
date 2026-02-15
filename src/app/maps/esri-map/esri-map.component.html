@@ -34,7 +34,9 @@
     <!-- Legend -->
     <div class="map-legend" *ngIf="activeLayerIds.size > 0">
       <div class="legend-item" *ngFor="let layerId of activeLayerIds">
-        <span class="legend-color" [style.background-color]="getLayerColorStyle(layerId)"></span>
+        <svg class="legend-icon" width="16" height="16" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="10" [attr.fill]="getLayerColorStyle(layerId)" stroke="white" stroke-width="2"/>
+        </svg>
         <span class="legend-name">{{ getLayerName(layerId) }}</span>
       </div>
     </div>

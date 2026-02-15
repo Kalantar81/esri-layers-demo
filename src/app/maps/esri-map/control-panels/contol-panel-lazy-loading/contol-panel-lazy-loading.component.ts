@@ -7,6 +7,8 @@ export interface LazyLoadingSettings {
   symbolType: string;
   entitiesPerLayer: number;
   bulkAmount: number;
+  clusteringType: string;
+  analysisMethod: string;
   loadingStrategy: string;
 }
 
@@ -37,6 +39,8 @@ export class ContolPanelLazyLoadingComponent implements OnInit, OnDestroy {
       symbolType: new FormControl('simple-marker'),
       entitiesPerLayer: new FormControl(50000),
       bulkAmount: new FormControl(5000),
+      clusteringType: new FormControl('dynamic'),
+      analysisMethod: new FormControl('multivariate'),
       loadingStrategy: new FormControl('query-task-pagination')
     });
   }

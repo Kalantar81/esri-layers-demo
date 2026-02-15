@@ -1689,6 +1689,38 @@ export class EsriMapComponent implements OnInit, OnDestroy, OnChanges {
     return layer ? layer.name : layerId;
   }
 
+  getLayerIcon(layerId: string): string {
+    const color = this.getColorForLayer(layerId);
+    const rgbColor = `rgb(${color[0]},${color[1]},${color[2]})`;
+    
+    const icons: { [key: string]: string } = {
+      'geojson': `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="${rgbColor}" stroke="white" stroke-width="2"/></svg>`,
+      'graphics': `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><polygon points="12,2 22,12 12,22 2,12" fill="${rgbColor}" stroke="white" stroke-width="2"/></svg>`,
+      'feature': `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" fill="${rgbColor}" stroke="white" stroke-width="2"/></svg>`,
+      'csv': `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><polygon points="12,2 22,20 2,20" fill="${rgbColor}" stroke="white" stroke-width="2"/></svg>`,
+      'feature-collection': `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><polygon points="12,2 21,7 21,17 12,22 3,17 3,7" fill="${rgbColor}" stroke="white" stroke-width="2"/></svg>`,
+      'client-side': `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><polygon points="12,2 15,10 23,10 17,16 20,24 12,18 4,24 7,16 1,10 9,10" fill="${rgbColor}" stroke="white" stroke-width="1"/></svg>`,
+      'geojson-2': `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="${rgbColor}" stroke="white" stroke-width="2"/></svg>`,
+      'graphics-2': `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><polygon points="12,2 22,12 12,22 2,12" fill="${rgbColor}" stroke="white" stroke-width="2"/></svg>`,
+      'feature-2': `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" fill="${rgbColor}" stroke="white" stroke-width="2"/></svg>`,
+      'csv-2': `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><polygon points="12,2 22,20 2,20" fill="${rgbColor}" stroke="white" stroke-width="2"/></svg>`,
+      'collection-2': `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><polygon points="12,2 21,7 21,17 12,22 3,17 3,7" fill="${rgbColor}" stroke="white" stroke-width="2"/></svg>`,
+      'client-side-2': `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><polygon points="12,2 15,10 23,10 17,16 20,24 12,18 4,24 7,16 1,10 9,10" fill="${rgbColor}" stroke="white" stroke-width="1"/></svg>`,
+      'geojson-3': `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="${rgbColor}" stroke="white" stroke-width="2"/></svg>`,
+      'graphics-3': `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><polygon points="12,2 22,12 12,22 2,12" fill="${rgbColor}" stroke="white" stroke-width="2"/></svg>`,
+      'feature-3': `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" fill="${rgbColor}" stroke="white" stroke-width="2"/></svg>`,
+      'csv-3': `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><polygon points="12,2 22,20 2,20" fill="${rgbColor}" stroke="white" stroke-width="2"/></svg>`,
+      'collection-3': `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><polygon points="12,2 21,7 21,17 12,22 3,17 3,7" fill="${rgbColor}" stroke="white" stroke-width="2"/></svg>`,
+      'client-side-3': `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><polygon points="12,2 15,10 23,10 17,16 20,24 12,18 4,24 7,16 1,10 9,10" fill="${rgbColor}" stroke="white" stroke-width="1"/></svg>`,
+      'geojson-4': `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="${rgbColor}" stroke="white" stroke-width="2"/></svg>`,
+      'graphics-4': `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><polygon points="12,2 22,12 12,22 2,12" fill="${rgbColor}" stroke="white" stroke-width="2"/></svg>`,
+      'feature-4': `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" fill="${rgbColor}" stroke="white" stroke-width="2"/></svg>`,
+      'csv-4': `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><polygon points="12,2 22,20 2,20" fill="${rgbColor}" stroke="white" stroke-width="2"/></svg>`
+    };
+
+    return icons[layerId] || `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="${rgbColor}" stroke="white" stroke-width="2"/></svg>`;
+  }
+
   cleanupAllLayers(): void {
     this.activeLayers.forEach(layer => this.map.remove(layer));
     this.activeLayers.clear();
