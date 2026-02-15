@@ -1,12 +1,13 @@
-import { Component, Input, Output, EventEmitter, OnDestroy } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnDestroy, OnInit } from '@angular/core';
 import { HistoryEntry } from '../../components/history-section/history-section.component';
+import { HistoryStorageService } from '../../services/history-storage.service';
 
 @Component({
   selector: 'app-control-panel-clustering',
   templateUrl: './control-panel-clustering.component.html',
   styleUrls: ['./control-panel-clustering.component.scss']
 })
-export class ControlPanelClusteringComponent implements OnDestroy {
+export class ControlPanelClusteringComponent implements OnInit, OnDestroy {
   @Input() selectedBasemap: string = 'streets-vector';
   @Input() selectedLayerTypeForAll: 'geojson' | 'graphics' | 'feature' | 'csv' | 'feature-collection' | 'client-side' = 'geojson';
   @Input() selectedSymbolType: string = 'simple-marker';
@@ -33,6 +34,16 @@ export class ControlPanelClusteringComponent implements OnDestroy {
   selectedClusteringType: string = 'dynamic';
   selectedAnalysisMethod: string = 'multivariate';
   isHistoryExpanded: boolean = false;
+  private readonly PANEL_NAME = 'clustering';
+
+  constructor(private historyStorage: HistoryStorageService) {}
+
+  ngOnInit(): void {
+    const savedHistory = this.historyStorage.loadHistory(this.PANEL_NAME);
+    if (savedHistory.length > 0) {
+      this.history = savedHistory;
+    }
+  }
 
   onBasemapChange(event: any): void {
     this.basemapChange.emit(event.target.value);
@@ -78,6 +89,7 @@ export class ControlPanelClusteringComponent implements OnDestroy {
   onClearHistory(): void {
     this.historyClear.emit();
     this.history = [];
+    this.historyStorage.clearHistory(this.PANEL_NAME);
   }
 
   getTotalEntities(): number {
@@ -117,6 +129,7 @@ export class ControlPanelClusteringComponent implements OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.historyStorage.saveHistory(this.PANEL_NAME, this.history);
     this.cleanup.emit();
   }
 }

@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy, Output, EventEmitter, Input } from '@angular/core';
 import { FormGroup, FormControl } from '@angular/forms';
 import { HistoryEntry } from '../../components/history-section/history-section.component';
+import { HistoryStorageService } from '../../services/history-storage.service';
 
 export interface LazyLoadingSettings {
   layerType: 'geojson' | 'graphics' | 'feature' | 'csv' | 'feature-collection' | 'client-side';
@@ -33,8 +34,15 @@ export class ContolPanelLazyLoadingComponent implements OnInit, OnDestroy {
   settingsForm!: FormGroup;
   isHistoryExpanded: boolean = false;
   private startTime: number = 0;
+  private readonly PANEL_NAME = 'lazy-loading';
+
+  constructor(private historyStorage: HistoryStorageService) {}
 
   ngOnInit(): void {
+    const savedHistory = this.historyStorage.loadHistory(this.PANEL_NAME);
+    if (savedHistory.length > 0) {
+      this.history = savedHistory;
+    }
     this.settingsForm = new FormGroup({
       layerType: new FormControl('geojson'),
       symbolType: new FormControl('simple-marker'),
@@ -87,6 +95,7 @@ export class ContolPanelLazyLoadingComponent implements OnInit, OnDestroy {
   onClearHistory(): void {
     this.historyClear.emit();
     this.history = [];
+    this.historyStorage.clearHistory(this.PANEL_NAME);
   }
 
   getActiveEntitiesCount(): number {
@@ -122,6 +131,7 @@ export class ContolPanelLazyLoadingComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.historyStorage.saveHistory(this.PANEL_NAME, this.history);
     this.cleanup.emit();
   }
 }

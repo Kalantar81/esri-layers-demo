@@ -1,12 +1,13 @@
-import { Component, Input, Output, EventEmitter, OnDestroy } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnDestroy, OnInit } from '@angular/core';
 import { HistoryEntry } from '../../components/history-section/history-section.component';
+import { HistoryStorageService } from '../../services/history-storage.service';
 
 @Component({
   selector: 'app-control-panel-layers',
   templateUrl: './control-panel-layers.component.html',
   styleUrls: ['./control-panel-layers.component.scss']
 })
-export class ControlPanelLayersComponent implements OnDestroy {
+export class ControlPanelLayersComponent implements OnInit, OnDestroy {
   @Input() selectedBasemap: string = 'streets-vector';
   @Input() selectedLayerTypeForAll: 'geojson' | 'graphics' | 'feature' | 'csv' | 'feature-collection' | 'client-side' = 'geojson';
   @Input() selectedSymbolType: string = 'simple-marker';
@@ -29,6 +30,16 @@ export class ControlPanelLayersComponent implements OnDestroy {
   @Output() cleanup = new EventEmitter<void>();
 
   isHistoryExpanded: boolean = false;
+  private readonly PANEL_NAME = 'layers';
+
+  constructor(private historyStorage: HistoryStorageService) {}
+
+  ngOnInit(): void {
+    const savedHistory = this.historyStorage.loadHistory(this.PANEL_NAME);
+    if (savedHistory.length > 0) {
+      this.history = savedHistory;
+    }
+  }
 
   onBasemapChange(event: any): void {
     const value = event.target.value;
@@ -66,6 +77,7 @@ export class ControlPanelLayersComponent implements OnDestroy {
   onClearHistory(): void {
     this.historyClear.emit();
     this.history = [];
+    this.historyStorage.clearHistory(this.PANEL_NAME);
   }
 
   getTotalEntities(): number {
@@ -105,6 +117,7 @@ export class ControlPanelLayersComponent implements OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.historyStorage.saveHistory(this.PANEL_NAME, this.history);
     this.cleanup.emit();
   }
 }
