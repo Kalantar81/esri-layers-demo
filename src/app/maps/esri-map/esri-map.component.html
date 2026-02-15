@@ -40,6 +40,7 @@
 
   <!-- Control Panel Component (30%) -->
   <app-control-panel-layers
+    *ngIf="layerMode === 'layers'"
     [selectedBasemap]="selectedBasemap"
     [selectedLayerTypeForAll]="selectedLayerTypeForAll"
     [selectedSymbolType]="selectedSymbolType"
@@ -59,4 +60,9 @@
     (historyToggle)="toggleHistory()"
     (historyClear)="clearHistory()"
   ></app-control-panel-layers>
+
+  <!-- Lazy Loading Control Panel -->
+  <app-contol-panel-lazy-loading
+    *ngIf="layerMode === 'lazy-loading'"
+  ></app-contol-panel-lazy-loading>
 </div>

@@ -1,4 +1,7 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
+import { Router, ActivatedRoute, NavigationEnd } from '@angular/router';
+import { Subscription } from 'rxjs';
+import { filter } from 'rxjs/operators';
 import { EsriMapComponent } from '../esri-map/esri-map.component';
 
 interface HistoryEntry {
@@ -15,7 +18,7 @@ interface HistoryEntry {
   templateUrl: './maps-layout.component.html',
   styleUrls: ['./maps-layout.component.scss']
 })
-export class MapsLayoutComponent implements OnInit {
+export class MapsLayoutComponent implements OnInit, OnDestroy {
   @ViewChild('esriMap') esriMap!: EsriMapComponent;
 
   // Layer mode state
@@ -48,18 +51,46 @@ export class MapsLayoutComponent implements OnInit {
     { id: 'streets-relief-vector', name: 'Streets (Relief)' }
   ];
 
-  constructor() { }
+  private routerSub!: Subscription;
+
+  constructor(private router: Router, private route: ActivatedRoute) { }
 
   ngOnInit(): void {
+    // Detect current route and set layerMode accordingly
+    this.routerSub = this.router.events
+      .pipe(filter(event => event instanceof NavigationEnd))
+      .subscribe((event: any) => {
+        this.updateModeFromUrl(event.urlAfterRedirects || event.url);
+      });
+
+    // Set initial mode from current URL
+    this.updateModeFromUrl(this.router.url);
+  }
+
+  ngOnDestroy(): void {
+    if (this.routerSub) {
+      this.routerSub.unsubscribe();
+    }
+  }
+
+  private updateModeFromUrl(url: string): void {
+    if (url.includes('control-panel-lazy-loading')) {
+      this.layerMode = 'lazy-loading';
+    } else {
+      this.layerMode = 'layers';
+    }
   }
 
   onLayersToggle(): void {
     this.layerMode = 'layers';
+    this.router.navigate(['/']);
     this.resetControlPanel();
   }
 
   onLazyLoadingToggle(): void {
     this.layerMode = 'lazy-loading';
+    this.router.navigate(['/control-panel-lazy-loading']);
+    this.esriMap.removeAllLayers();
     this.resetControlPanel();
   }
 

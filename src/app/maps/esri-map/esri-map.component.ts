@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef, Input } from '@angular/core';
 import { LayersService } from '../services/layers.service';
 import esriConfig from '@arcgis/core/config';
 import EsriMap from '@arcgis/core/Map';
@@ -35,7 +35,8 @@ interface HistoryEntry {
 })
 export class EsriMapComponent implements OnInit, OnDestroy {
   @ViewChild('mapViewNode', { static: true }) private mapViewEl!: ElementRef;
-  
+  @Input() layerMode: 'layers' | 'lazy-loading' | 'clustering' = 'layers';
+
   private view: any = null;
   private map: any = null;
   private currentLayer: any = null;
@@ -509,6 +510,17 @@ export class EsriMapComponent implements OnInit, OnDestroy {
       this.isLoading = false;
       this.lastLoadedTime = new Date().toLocaleTimeString();
     }
+  }
+
+  removeAllLayers(): void {
+    this.activeLayers.forEach((layer) => {
+      this.map.remove(layer);
+    });
+    this.activeLayers.clear();
+    this.activeLayerIds.clear();
+    this.totalLoadingTime = 0;
+    this.lastLoadedTime = '';
+    this.entityCount = 0;
   }
 
   getLayerColorStyle(layerId: string): string {

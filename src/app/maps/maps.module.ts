@@ -12,13 +12,15 @@ import { EsriMapComponent } from './esri-map/esri-map.component';
 import { ControlPanelLayersComponent } from './esri-map/control-panel-layers/control-panel-layers.component';
 import { MapsLayoutComponent } from './maps-layout/maps-layout.component';
 import { LayersService } from './services/layers.service';
+import { ContolPanelLazyLoadingComponent } from './contol-panel-lazy-loading/contol-panel-lazy-loading.component';
 
 
 @NgModule({
   declarations: [
     EsriMapComponent,
     ControlPanelLayersComponent,
-    MapsLayoutComponent
+    MapsLayoutComponent,
+    ContolPanelLazyLoadingComponent
   ],
   imports: [
     CommonModule,
