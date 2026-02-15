@@ -24,7 +24,7 @@ export class ContolPanelLazyLoadingComponent implements OnInit {
       layerType: new FormControl('geojson'),
       symbolType: new FormControl('simple-marker'),
       entitiesPerLayer: new FormControl(50000),
-      bulkAmount: new FormControl(5),
+      bulkAmount: new FormControl(5000),
       loadingStrategy: new FormControl('query-task-pagination')
     });
   }

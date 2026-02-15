@@ -39,8 +39,8 @@
         min="100"
         max="100000"
         step="100"
-        placeholder="Enter number per layer">
-      <small class="hint">Per layer: {{ settingsForm.get('entitiesPerLayer')?.value | number }} entities</small>
+        placeholder="Number of entities per layer">
+      <small class="hint">{{ settingsForm.get('entitiesPerLayer')?.value | number }} entities per layer</small>
     </div>
 
     <div class="control-group">
@@ -54,16 +54,16 @@
     </div>
 
     <div class="control-group">
-      <label for="bulkAmount">Bulk Amount:</label>
+      <label for="bulkAmount">Page Size (Entities per Batch):</label>
       <input
         type="number"
         id="bulkAmount"
         formControlName="bulkAmount"
-        min="1"
-        max="22"
-        step="1"
-        placeholder="Number of layers to load at once">
-      <small class="hint">Load {{ settingsForm.get('bulkAmount')?.value }} layers at a time</small>
+        min="100"
+        max="100000"
+        step="100"
+        placeholder="Number of entities per batch">
+      <small class="hint">Load {{ settingsForm.get('bulkAmount')?.value | number }} entities per batch</small>
     </div>
 
     <button type="submit" class="apply-button">

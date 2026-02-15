@@ -64,5 +64,6 @@
   <!-- Lazy Loading Control Panel -->
   <app-contol-panel-lazy-loading
     *ngIf="layerMode === 'lazy-loading'"
+    (applySettings)="onLazyLoadingApplySettings($event)"
   ></app-contol-panel-lazy-loading>
 </div>

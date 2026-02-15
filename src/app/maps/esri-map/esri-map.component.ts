@@ -1233,6 +1233,277 @@ export class EsriMapComponent implements OnInit, OnDestroy {
     });
   }
 
+  // =============================================
+  // Lazy Loading Strategies
+  // =============================================
+
+  async loadWithQueryTaskPagination(layerType: 'geojson' | 'graphics' | 'feature' | 'csv' | 'feature-collection' | 'client-side', pageSize: number, bulkAmount: number, symbolType: string): Promise<void> {
+    this.isLoading = true;
+    try {
+      const fullData = await this.layersService.getEarthquakes().toPromise();
+      if (!fullData) return;
+      const allFeatures = fullData.data.features || [];
+
+      setTimeout(async () => {
+        const firstBatch = { ...fullData.data, features: allFeatures.slice(0, pageSize) };
+        console.log('pageSize: ', pageSize);
+        const transformedData = this.transformDataToIsrael(firstBatch);
+        const layer = await this.createLayerInstance(layerType, transformedData, 'lazy-first-batch');
+        if (layer) {
+          this.map.add(layer);
+          this.currentLayer = layer;
+          this.isLoading = false;
+        }
+      }, 2000);
+
+      let currentOffset = pageSize;
+      let batchNumber = 1;
+
+      const loadBatch = async () => {
+        if (currentOffset >= allFeatures.length) return;
+
+        for (let i = 0; i < bulkAmount && currentOffset < allFeatures.length; i++) {
+          const batchEnd = Math.min(currentOffset + pageSize, allFeatures.length);
+          const batchFeatures = allFeatures.slice(currentOffset, batchEnd);
+          const batchData = { ...fullData.data, features: batchFeatures };
+          const transformedData = this.transformDataToIsrael(batchData);
+
+          if (this.currentLayer instanceof GraphicsLayer) {
+            const graphics = this.createGraphicsFromData(transformedData, `batch-${batchNumber}`);
+            this.currentLayer.addMany(graphics);
+          }
+
+          currentOffset = batchEnd;
+          batchNumber++;
+        }
+
+        setTimeout(loadBatch, 500);
+      };
+
+      setTimeout(loadBatch, 3000);
+    } catch (error) {
+      console.error('[QUERY PAGINATION] Error:', error);
+      this.isLoading = false;
+    }
+  }
+
+  async loadWithGraphicsLayerBatches(pageSize: number, bulkAmount: number, symbolType: string): Promise<void> {
+    this.isLoading = true;
+    try {
+      if (this.currentLayer instanceof GraphicsLayer) {
+        this.map.remove(this.currentLayer);
+      }
+
+      const graphicsLayer = new GraphicsLayer({ title: 'Lazy Loaded Graphics' });
+      this.map.add(graphicsLayer);
+      this.currentLayer = graphicsLayer;
+
+      const fullData = await this.layersService.getEarthquakes().toPromise();
+      if (!fullData) return;
+      const allFeatures = fullData.data.features || [];
+
+      const addBatch = (startIndex: number, batchSize: number) => {
+        const endIndex = Math.min(startIndex + batchSize, allFeatures.length);
+        const batchFeatures = allFeatures.slice(startIndex, endIndex);
+
+        const graphics = batchFeatures.map((feature: any) => {
+          const [lon, lat] = feature.geometry.coordinates;
+          const transformed = this.transformToIsrael(lon, lat);
+          return new Graphic({
+            geometry: new Point({ longitude: transformed.lon, latitude: transformed.lat }),
+            symbol: this.getSymbolForType('lazy-batch'),
+            attributes: feature.properties,
+            popupTemplate: { title: 'Object', content: '<b>ID:</b> {id}<br><b>Magnitude:</b> {mag}' }
+          });
+        });
+
+        graphicsLayer.addMany(graphics);
+
+        if (endIndex < allFeatures.length) {
+          setTimeout(() => addBatch(endIndex, pageSize), 500);
+        } else {
+          this.isLoading = false;
+        }
+      };
+
+      setTimeout(() => addBatch(0, pageSize), 2000);
+    } catch (error) {
+      console.error('[GRAPHICS BATCHES] Error:', error);
+      this.isLoading = false;
+    }
+  }
+
+  async loadWithClustering(layerType: 'geojson' | 'graphics' | 'feature' | 'csv' | 'feature-collection' | 'client-side', pageSize: number, bulkAmount: number, symbolType: string): Promise<void> {
+    this.isLoading = true;
+    try {
+      const fullData = await this.layersService.getEarthquakes().toPromise();
+      if (!fullData) return;
+      const allFeatures = fullData.data.features || [];
+
+      setTimeout(async () => {
+        const firstBatch = { ...fullData.data, features: allFeatures.slice(0, pageSize) };
+        const transformedData = this.transformDataToIsrael(firstBatch);
+        const layer = await this.createClusteredLayer(transformedData, 'lazy-clustered');
+        if (layer) {
+          this.map.add(layer);
+          this.currentLayer = layer;
+          this.isLoading = false;
+        }
+      }, 2000);
+
+      let currentOffset = pageSize;
+
+      const loadNextBatch = async () => {
+        if (currentOffset >= allFeatures.length) return;
+
+        const batchEnd = Math.min(currentOffset + pageSize, allFeatures.length);
+        const batchFeatures = allFeatures.slice(currentOffset, batchEnd);
+
+        if (this.currentLayer instanceof FeatureLayer) {
+          const graphics = batchFeatures.map((feature: any, index: number) => {
+            const [lon, lat] = feature.geometry.coordinates;
+            const transformed = this.transformToIsrael(lon, lat);
+            return new Graphic({
+              geometry: new Point({ longitude: transformed.lon, latitude: transformed.lat }),
+              attributes: { OBJECTID: currentOffset + index, ...feature.properties }
+            });
+          });
+
+          if (this.currentLayer.source) {
+            this.currentLayer.source.addMany(graphics);
+          }
+        }
+
+        currentOffset = batchEnd;
+        if (currentOffset < allFeatures.length) {
+          setTimeout(loadNextBatch, 500);
+        }
+      };
+
+      setTimeout(loadNextBatch, 3000);
+    } catch (error) {
+      console.error('[CLUSTERING] Error:', error);
+      this.isLoading = false;
+    }
+  }
+
+  async loadWithMaxRecordCount(layerType: 'geojson' | 'graphics' | 'feature' | 'csv' | 'feature-collection' | 'client-side', pageSize: number, bulkAmount: number, symbolType: string): Promise<void> {
+    this.isLoading = true;
+    try {
+      const fullData = await this.layersService.getEarthquakes().toPromise();
+      if (!fullData) return;
+      const allFeatures = fullData.data.features || [];
+      const totalCount = allFeatures.length;
+
+      const loadBatchAtOffset = async (offset: number, limit: number) => {
+        const endIndex = Math.min(offset + limit, totalCount);
+        const batchFeatures = allFeatures.slice(offset, endIndex);
+        const batchData = { ...fullData.data, features: batchFeatures };
+        const transformedData = this.transformDataToIsrael(batchData);
+        const layer = await this.createLayerInstance(layerType, transformedData, `lazy-batch-${offset}`);
+        if (layer) {
+          if (!this.currentLayer) {
+            this.map.add(layer);
+            this.currentLayer = layer;
+          } else if (this.currentLayer instanceof GraphicsLayer) {
+            const graphics = this.createGraphicsFromData(transformedData, `batch-${offset}`);
+            this.currentLayer.addMany(graphics);
+          }
+        }
+        return endIndex;
+      };
+
+      setTimeout(async () => {
+        let currentOffset = await loadBatchAtOffset(0, pageSize);
+        this.isLoading = false;
+
+        const loadNextBatch = async () => {
+          if (currentOffset >= totalCount) return;
+
+          const promises = [];
+          for (let i = 0; i < bulkAmount && currentOffset < totalCount; i++) {
+            promises.push(loadBatchAtOffset(currentOffset, pageSize));
+            currentOffset += pageSize;
+          }
+          await Promise.all(promises);
+
+          if (currentOffset < totalCount) {
+            setTimeout(loadNextBatch, 500);
+          }
+        };
+
+        setTimeout(loadNextBatch, 3000);
+      }, 2000);
+    } catch (error) {
+      console.error('[MAX RECORD COUNT] Error:', error);
+      this.isLoading = false;
+    }
+  }
+
+  private createGraphicsFromData(data: any, layerId: string): Graphic[] {
+    const features = data.features || [];
+    return features.map((feature: any) => {
+      const [lon, lat] = feature.geometry.coordinates;
+      return new Graphic({
+        geometry: new Point({ longitude: lon, latitude: lat }),
+        symbol: this.getSymbolForType(layerId),
+        attributes: feature.properties,
+        popupTemplate: { title: 'Object', content: '<b>ID:</b> {id}<br><b>Magnitude:</b> {mag}' }
+      });
+    });
+  }
+
+  private async createClusteredLayer(data: any, layerId: string): Promise<FeatureLayer> {
+    const features = data.features || [];
+    const graphics = features.map((feature: any, index: number) => {
+      const [lon, lat] = feature.geometry.coordinates;
+      return new Graphic({
+        geometry: new Point({ longitude: lon, latitude: lat }),
+        attributes: { OBJECTID: index, ...feature.properties }
+      });
+    });
+
+    return new FeatureLayer({
+      source: graphics,
+      objectIdField: 'OBJECTID',
+      geometryType: 'point',
+      fields: [
+        { name: 'OBJECTID', type: 'oid' },
+        { name: 'id', type: 'string' },
+        { name: 'mag', type: 'double' }
+      ],
+      renderer: new SimpleRenderer({ symbol: this.getSymbolForType(layerId) })
+    });
+  }
+
+  async onLazyLoadingApplySettings(settings: any): Promise<void> {
+    const { layerType, symbolType, entitiesPerLayer, bulkAmount, loadingStrategy } = settings;
+    const parallelBatches = 3; // Fixed number of parallel batches to load
+
+    if (this.currentLayer) {
+      this.map.remove(this.currentLayer);
+      this.currentLayer = null;
+    }
+
+    this.selectedSymbolType = symbolType;
+    this.entitiesAmount = entitiesPerLayer;
+
+    switch (loadingStrategy) {
+      case 'query-task-pagination':
+        await this.loadWithQueryTaskPagination(layerType, bulkAmount, parallelBatches, symbolType);
+        break;
+      case 'graphics-layer-batches':
+        await this.loadWithGraphicsLayerBatches(bulkAmount, parallelBatches, symbolType);
+        break;
+      case 'clustering':
+        await this.loadWithClustering(layerType, bulkAmount, parallelBatches, symbolType);
+        break;
+      case 'max-record-count':
+        await this.loadWithMaxRecordCount(layerType, bulkAmount, parallelBatches, symbolType);
+        break;
+    }
+  }
+
   private async zoomToIsrael(): Promise<void> {
     setTimeout(() => {
       this.view.goTo({
