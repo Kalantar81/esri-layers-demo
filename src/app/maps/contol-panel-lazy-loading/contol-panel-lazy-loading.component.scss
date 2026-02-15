@@ -20,6 +20,13 @@
     border-bottom: 2px solid #0079c1;
     padding-bottom: 10px;
   }
+
+  h4 {
+    color: #555;
+    margin-top: 20px;
+    margin-bottom: 10px;
+    font-size: 14px;
+  }
 }
 
 .control-group {
@@ -44,7 +51,7 @@
     transition: border-color 0.3s;
     box-sizing: border-box;
 
-    &:hover {
+    &:hover:not(:disabled) {
       border-color: #0079c1;
     }
 
@@ -52,6 +59,12 @@
       outline: none;
       border-color: #0079c1;
       box-shadow: 0 0 0 2px rgba(0, 121, 193, 0.1);
+    }
+
+    &:disabled {
+      background-color: #f0f0f0;
+      cursor: not-allowed;
+      opacity: 0.6;
     }
   }
 
@@ -66,6 +79,22 @@
     color: #888;
     font-style: italic;
   }
+
+  .total-entities {
+    display: block;
+    margin-top: 12px;
+    padding: 10px;
+    background-color: #e8f4fd;
+    border-left: 4px solid #0079c1;
+    border-radius: 2px;
+    font-size: 13px;
+    color: #333;
+
+    strong {
+      color: #0079c1;
+      font-weight: 600;
+    }
+  }
 }
 
 .apply-button {
@@ -79,17 +108,56 @@
   font-weight: 600;
   cursor: pointer;
   transition: background-color 0.3s;
-  margin-top: 10px;
+  margin-bottom: 20px;
   box-sizing: border-box;
 
-  &:hover {
+  &:hover:not(:disabled) {
     background-color: #005a8d;
   }
 
-  &:active {
+  &:active:not(:disabled) {
     background-color: #004570;
   }
+
+  &:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
 }
+
+.stats-info {
+  background-color: white;
+  padding: 15px;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+  margin-bottom: 15px;
+
+  .stat-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid #f0f0f0;
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    .stat-label {
+      font-weight: 500;
+      color: #555;
+      font-size: 12px;
+    }
+
+    .stat-value {
+      font-weight: 600;
+      color: #0079c1;
+      font-size: 13px;
+    }
+  }
+}
+
 // History Section
 .history-section {
   background-color: white;

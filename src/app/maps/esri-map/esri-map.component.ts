@@ -387,9 +387,9 @@ export class EsriMapComponent implements OnInit, OnDestroy, OnChanges {
       timestamp: new Date(),
       basemap: this.getBasemapName(this.selectedBasemap),
       symbolType: this.getSymbolTypeName(),
-      totalEntities: this.entitiesAmount,
+      totalEntities: this.entitiesAmount * this.activeLayers.size,
       loadingTime: this.totalLoadingTime,
-      activeLayersCount: this.activeLayerIds.size
+      activeLayersCount: this.activeLayers.size
     };
 
     // Add to beginning of array (newest first)
@@ -1478,32 +1478,31 @@ export class EsriMapComponent implements OnInit, OnDestroy, OnChanges {
   async onLazyLoadingApplySettings(settings: any): Promise<void> {
     const startTime = performance.now();
     const { layerType, symbolType, entitiesPerLayer, bulkAmount, loadingStrategy } = settings;
-    const parallelBatches = 3; // Fixed number of parallel batches to load
+    const parallelBatches = 3;
 
+    // Clear all layers and graphics first
+    this.activeLayers.forEach(layer => this.map.remove(layer));
+    this.activeLayers.clear();
     if (this.currentLayer) {
       this.map.remove(this.currentLayer);
       this.currentLayer = null;
     }
+    this.map.allLayers.forEach((layer: any) => {
+      if (layer.type === 'graphics') {
+        layer.removeAll();
+      }
+    });
 
     this.selectedSymbolType = symbolType;
     this.entitiesAmount = entitiesPerLayer;
 
-    switch (loadingStrategy) {
-      case 'query-task-pagination':
-        await this.loadWithQueryTaskPagination(layerType, bulkAmount, parallelBatches, symbolType);
-        break;
-      case 'graphics-layer-batches':
-        await this.loadWithGraphicsLayerBatches(bulkAmount, parallelBatches, symbolType);
-        break;
-      case 'clustering':
-        await this.loadWithClustering(layerType, bulkAmount, parallelBatches, symbolType);
-        break;
-      case 'max-record-count':
-        await this.loadWithMaxRecordCount(layerType, bulkAmount, parallelBatches, symbolType);
-        break;
+    // Load only selected layers with lazy loading strategy
+    if (this.activeLayerIds.size > 0) {
+      const selectedLayerIds = Array.from(this.activeLayerIds);
+      const layerPromises = selectedLayerIds.map(layerId => this.addLayer(layerId));
+      await Promise.all(layerPromises);
     }
 
-    // Calculate actual loading time and add to history
     const endTime = performance.now();
     const loadingTime = endTime - startTime;
     if (this.lazyLoadingPanel) {

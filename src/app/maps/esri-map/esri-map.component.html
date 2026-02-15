@@ -11,7 +11,7 @@
     <app-layer-control-button (toggle)="toggleLayerPanel()"></app-layer-control-button>
 
     <!-- Layer Control Panel -->
-    <div class="layer-panel" [class.open]="isLayerPanelOpen">
+    <div class="layer-panel" [class.open]="isLayerPanelOpen" *ngIf="layerMode === 'layers' || layerMode === 'lazy-loading'">
       <div class="layer-panel-header">
         <h4>Active Layers</h4>
         <button class="close-btn" (click)="toggleLayerPanel()">×</button>
@@ -60,6 +60,11 @@
   <app-contol-panel-lazy-loading
     #lazyLoadingPanel
     *ngIf="layerMode === 'lazy-loading'"
+    [activeLayerCount]="activeLayerIds.size"
+    [entitiesAmount]="entitiesAmount"
+    [totalLoadingTime]="totalLoadingTime"
+    [lastLoadedTime]="lastLoadedTime"
+    [history]="history"
     (applySettings)="onLazyLoadingApplySettings($event)"
     (cleanup)="cleanupAllLayers()"
   ></app-contol-panel-lazy-loading>

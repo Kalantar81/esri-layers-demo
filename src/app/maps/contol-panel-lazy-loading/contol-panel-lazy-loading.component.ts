@@ -30,6 +30,10 @@ export class ContolPanelLazyLoadingComponent implements OnInit, OnDestroy {
   @Output() cleanup = new EventEmitter<void>();
   
   @Input() history: HistoryEntry[] = [];
+  @Input() activeLayerCount: number = 0;
+  @Input() entitiesAmount: number = 50000;
+  @Input() totalLoadingTime: number = 0;
+  @Input() lastLoadedTime: string = '';
 
   settingsForm!: FormGroup;
   isHistoryExpanded: boolean = false;
@@ -47,25 +51,19 @@ export class ContolPanelLazyLoadingComponent implements OnInit, OnDestroy {
 
   onSubmit(): void {
     if (this.settingsForm.valid) {
-      // Record the start time for measuring actual loading time
       this.startTime = performance.now();
-      
-      // Emit the settings
       this.applySettings.emit(this.settingsForm.value);
     }
   }
 
-  // Called by parent component to add history entry with actual loading time
   addHistoryEntry(loadingTime: number): void {
-    const formValue = this.settingsForm.value;
-    
     const historyEntry: HistoryEntry = {
       timestamp: new Date(),
-      basemap: formValue.layerType,
-      symbolType: formValue.symbolType,
-      totalEntities: formValue.entitiesPerLayer,
+      basemap: this.getLayerTypeName(),
+      symbolType: this.getSymbolTypeName(),
+      totalEntities: this.entitiesAmount * this.activeLayerCount,
       loadingTime: Math.round(loadingTime),
-      activeLayersCount: 1
+      activeLayersCount: this.activeLayerCount
     };
     
     this.history.unshift(historyEntry);
@@ -79,6 +77,38 @@ export class ContolPanelLazyLoadingComponent implements OnInit, OnDestroy {
   onClearHistory(): void {
     this.historyClear.emit();
     this.history = [];
+  }
+
+  getActiveEntitiesCount(): number {
+    return this.entitiesAmount * this.activeLayerCount;
+  }
+
+  getLayerTypeName(): string {
+    const layerNames: { [key: string]: string } = {
+      'geojson': 'GeoJSON Layer',
+      'graphics': 'Graphics Layer',
+      'feature': 'Feature Layer',
+      'csv': 'CSV Layer',
+      'feature-collection': 'Feature Layer (Collection)',
+      'client-side': 'Feature Layer (Client-Side)'
+    };
+    return layerNames[this.settingsForm.get('layerType')?.value] || this.settingsForm.get('layerType')?.value;
+  }
+
+  getSymbolTypeName(): string {
+    const symbolNames: { [key: string]: string } = {
+      'simple-marker': 'Simple Point',
+      'circle': 'Circle',
+      'square': 'Square',
+      'diamond': 'Diamond',
+      'cross': 'Cross',
+      'x': 'X Symbol',
+      'triangle': 'Triangle',
+      'picture-marker': 'SVG Icon',
+      'complex-svg': 'Complex SVG',
+      'png-image': 'Custom Icon'
+    };
+    return symbolNames[this.settingsForm.get('symbolType')?.value] || this.settingsForm.get('symbolType')?.value;
   }
 
   ngOnDestroy(): void {
