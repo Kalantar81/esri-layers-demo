@@ -9,10 +9,10 @@ import { RippleModule } from 'primeng/ripple';
 
 import { MapsRoutingModule } from './maps-routing.module';
 import { EsriMapComponent } from './esri-map/esri-map.component';
-import { ControlPanelLayersComponent } from './esri-map/control-panel-layers/control-panel-layers.component';
+import { ControlPanelLayersComponent } from './esri-map/control-panels/control-panel-layers/control-panel-layers.component';
 import { MapsLayoutComponent } from './maps-layout/maps-layout.component';
 import { LayersService } from './services/layers.service';
-import { ContolPanelLazyLoadingComponent } from './contol-panel-lazy-loading/contol-panel-lazy-loading.component';
+import { ContolPanelLazyLoadingComponent } from './esri-map/control-panels/contol-panel-lazy-loading/contol-panel-lazy-loading.component';
 import { LayerControlButtonComponent } from './layer-control-button/layer-control-button.component';
 
 

@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, ViewChild, ElementRef, Input, OnChanges, SimpleChanges, ChangeDetectorRef } from '@angular/core';
 import { LayersService } from '../services/layers.service';
-import { ContolPanelLazyLoadingComponent } from '../contol-panel-lazy-loading/contol-panel-lazy-loading.component';
+import { ContolPanelLazyLoadingComponent } from './control-panels/contol-panel-lazy-loading/contol-panel-lazy-loading.component';
 import esriConfig from '@arcgis/core/config';
 import EsriMap from '@arcgis/core/Map';
 import MapView from '@arcgis/core/views/MapView';
