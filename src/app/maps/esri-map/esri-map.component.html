@@ -53,6 +53,7 @@
     (settingsChange)="onSettingsChange()"
     (historyToggle)="toggleHistory()"
     (historyClear)="clearHistory()"
+    (cleanup)="cleanupAllLayers()"
   ></app-control-panel-layers>
 
   <!-- Lazy Loading Control Panel -->
@@ -60,5 +61,6 @@
     #lazyLoadingPanel
     *ngIf="layerMode === 'lazy-loading'"
     (applySettings)="onLazyLoadingApplySettings($event)"
+    (cleanup)="cleanupAllLayers()"
   ></app-contol-panel-lazy-loading>
 </div>

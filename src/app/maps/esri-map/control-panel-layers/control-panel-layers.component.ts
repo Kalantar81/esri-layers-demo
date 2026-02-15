@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnDestroy } from '@angular/core';
 
 interface HistoryEntry {
   timestamp: Date;
@@ -14,7 +14,7 @@ interface HistoryEntry {
   templateUrl: './control-panel-layers.component.html',
   styleUrls: ['./control-panel-layers.component.scss']
 })
-export class ControlPanelLayersComponent {
+export class ControlPanelLayersComponent implements OnDestroy {
   @Input() selectedBasemap: string = 'streets-vector';
   @Input() selectedLayerTypeForAll: 'geojson' | 'graphics' | 'feature' | 'csv' | 'feature-collection' | 'client-side' = 'geojson';
   @Input() selectedSymbolType: string = 'simple-marker';
@@ -34,6 +34,7 @@ export class ControlPanelLayersComponent {
   @Output() settingsChange = new EventEmitter<void>();
   @Output() historyToggle = new EventEmitter<void>();
   @Output() historyClear = new EventEmitter<void>();
+  @Output() cleanup = new EventEmitter<void>();
 
   isHistoryExpanded: boolean = false;
 
@@ -109,5 +110,9 @@ export class ControlPanelLayersComponent {
       'png-image': 'Custom Icon'
     };
     return symbolNames[this.selectedSymbolType] || this.selectedSymbolType;
+  }
+
+  ngOnDestroy(): void {
+    this.cleanup.emit();
   }
 }

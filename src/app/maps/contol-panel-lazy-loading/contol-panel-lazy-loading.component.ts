@@ -1,4 +1,4 @@
-import { Component, OnInit, Output, EventEmitter, Input } from '@angular/core';
+import { Component, OnInit, OnDestroy, Output, EventEmitter, Input } from '@angular/core';
 import { FormGroup, FormControl } from '@angular/forms';
 
 export interface LazyLoadingSettings {
@@ -23,10 +23,11 @@ interface HistoryEntry {
   templateUrl: './contol-panel-lazy-loading.component.html',
   styleUrls: ['./contol-panel-lazy-loading.component.scss']
 })
-export class ContolPanelLazyLoadingComponent implements OnInit {
+export class ContolPanelLazyLoadingComponent implements OnInit, OnDestroy {
   @Output() applySettings = new EventEmitter<LazyLoadingSettings>();
   @Output() historyToggle = new EventEmitter<void>();
   @Output() historyClear = new EventEmitter<void>();
+  @Output() cleanup = new EventEmitter<void>();
   
   @Input() history: HistoryEntry[] = [];
 
@@ -78,5 +79,9 @@ export class ContolPanelLazyLoadingComponent implements OnInit {
   onClearHistory(): void {
     this.historyClear.emit();
     this.history = [];
+  }
+
+  ngOnDestroy(): void {
+    this.cleanup.emit();
   }
 }

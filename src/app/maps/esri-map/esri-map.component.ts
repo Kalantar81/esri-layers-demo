@@ -343,11 +343,7 @@ export class EsriMapComponent implements OnInit, OnDestroy, OnChanges {
         zoom: 7
       });
 
-      // Wait for view to be ready before loading layers
       await this.view.when();
-
-      // Load all visible layers by default
-      await this.loadAllVisibleLayers();
 
     } catch (error) {
       console.error('Error initializing map:', error);
@@ -445,46 +441,40 @@ export class EsriMapComponent implements OnInit, OnDestroy, OnChanges {
       this.map.basemap = this.selectedBasemap;
     }
 
-    // Reload all active layers to apply symbol type changes
-    if (this.activeLayers.size > 0) {
+    // Clear all layers and graphics first
+    this.activeLayers.forEach(layer => this.map.remove(layer));
+    this.activeLayers.clear();
+    this.map.allLayers.forEach((layer: any) => {
+      if (layer.type === 'graphics') {
+        layer.removeAll();
+      }
+    });
+
+    // Load only selected layers
+    if (this.activeLayerIds.size > 0) {
       const startTime = performance.now();
       this.isLoading = true;
       this.totalLoadingTime = 0;
 
       try {
-        // Get all currently active layer IDs
-        const activeLayerIds: string[] = Array.from(this.activeLayers.keys()) as string[];
-
-        // Remove all current layers
-        activeLayerIds.forEach(layerId => {
-          const layer = this.activeLayers.get(layerId);
-          if (layer) {
-            this.map.remove(layer);
-          }
-        });
-        this.activeLayers = new Map(); // Reassign for change detection
-        this.activeLayerIds = new Set(); // Reassign for change detection
-
-        // Reload all layers with new settings
-        const layerPromises = activeLayerIds.map(layerId => this.addLayer(layerId));
+        const selectedLayerIds: string[] = Array.from(this.activeLayerIds);
+        const layerPromises = selectedLayerIds.map(layerId => this.addLayer(layerId));
         await Promise.all(layerPromises);
 
         const endTime = performance.now();
         this.totalLoadingTime = Math.round(endTime - startTime);
         this.lastLoadedTime = new Date().toLocaleTimeString();
 
-        console.log(`Reloaded ${activeLayerIds.length} layers with new settings in ${this.totalLoadingTime}ms`);
+        console.log(`Loaded ${this.activeLayers.size} layers in ${this.totalLoadingTime}ms`);
 
-        // Add to history
         this.addToHistory();
       } catch (error) {
-        console.error('Error reloading layers:', error);
+        console.error('Error loading layers:', error);
       } finally {
         this.isLoading = false;
       }
     }
 
-    // Reset dataset when applying new settings to ensure consistent entity count across layers
     this.fullDataset = null;
   }
 
@@ -516,11 +506,8 @@ export class EsriMapComponent implements OnInit, OnDestroy, OnChanges {
         this.activeLayerIds.delete(layerId);
       }
     } else {
-      // Add layer to map
-      this.isLoading = true;
-      await this.addLayer(layerId);
-      this.isLoading = false;
-      this.lastLoadedTime = new Date().toLocaleTimeString();
+      // Mark layer as selected
+      this.activeLayerIds.add(layerId);
     }
   }
 
@@ -1538,6 +1525,22 @@ export class EsriMapComponent implements OnInit, OnDestroy, OnChanges {
   getCurrentLayerInfo(): string {
     const layer = this.layerTypes.find(l => l.id === this.selectedLayerType);
     return layer ? layer.description : 'No layer selected';
+  }
+
+  cleanupAllLayers(): void {
+    this.activeLayers.forEach(layer => this.map.remove(layer));
+    this.activeLayers.clear();
+    this.activeLayerIds.clear();
+    if (this.currentLayer) {
+      this.map.remove(this.currentLayer);
+      this.currentLayer = null;
+    }
+    this.map.allLayers.forEach((layer: any) => {
+      if (layer.type === 'graphics') {
+        layer.removeAll();
+      }
+    });
+    this.isLayerPanelOpen = false;
   }
 
   ngOnDestroy(): void {
