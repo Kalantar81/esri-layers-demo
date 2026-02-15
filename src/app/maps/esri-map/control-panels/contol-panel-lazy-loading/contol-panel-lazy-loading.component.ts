@@ -7,6 +7,7 @@ export interface LazyLoadingSettings {
   symbolType: string;
   entitiesPerLayer: number;
   bulkAmount: number;
+  enableClustering: boolean;
   clusteringType: string;
   analysisMethod: string;
   loadingStrategy: string;
@@ -39,9 +40,22 @@ export class ContolPanelLazyLoadingComponent implements OnInit, OnDestroy {
       symbolType: new FormControl('simple-marker'),
       entitiesPerLayer: new FormControl(50000),
       bulkAmount: new FormControl(5000),
+      enableClustering: new FormControl(false),
       clusteringType: new FormControl('dynamic'),
       analysisMethod: new FormControl('multivariate'),
       loadingStrategy: new FormControl('query-task-pagination')
+    });
+
+    this.settingsForm.get('enableClustering')?.valueChanges.subscribe(enabled => {
+      if (enabled) {
+        this.settingsForm.get('loadingStrategy')?.setValue('clustering');
+      }
+    });
+
+    this.settingsForm.get('clusteringType')?.valueChanges.subscribe(type => {
+      if (this.settingsForm.get('enableClustering')?.value) {
+        this.settingsForm.get('loadingStrategy')?.setValue('clustering');
+      }
     });
   }
 

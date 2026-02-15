@@ -547,6 +547,10 @@ export class EsriMapComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   private async addLayer(layerId: string): Promise<void> {
+    return this.addLayerWithClustering(layerId, false);
+  }
+
+  private async addLayerWithClustering(layerId: string, enableClustering: boolean): Promise<void> {
     const startTime = performance.now();
 
     try {
@@ -647,9 +651,9 @@ export class EsriMapComponent implements OnInit, OnDestroy, OnChanges {
       const transformedData = this.transformDataToIsrael(filteredData);
 
       // Create layer based on the selected layer type
-      // In clustering mode, use clustering-aware layer creation for supported types
+      // Use clustering if enabled and layer type supports it
       let newLayer: any;
-      if (this.layerMode === 'clustering' &&
+      if (enableClustering &&
           (this.selectedLayerTypeForAll === 'geojson' || this.selectedLayerTypeForAll === 'feature' || this.selectedLayerTypeForAll === 'csv')) {
         newLayer = await this.createClusteredLayer(transformedData, layerId);
       } else {
@@ -1646,7 +1650,7 @@ export class EsriMapComponent implements OnInit, OnDestroy, OnChanges {
 
   async onLazyLoadingApplySettings(settings: any): Promise<void> {
     const startTime = performance.now();
-    const { layerType, symbolType, entitiesPerLayer, bulkAmount, loadingStrategy } = settings;
+    const { layerType, symbolType, entitiesPerLayer, bulkAmount, loadingStrategy, enableClustering, clusteringType } = settings;
     const parallelBatches = 3;
 
     // Clear all layers and graphics first
@@ -1664,11 +1668,12 @@ export class EsriMapComponent implements OnInit, OnDestroy, OnChanges {
 
     this.selectedSymbolType = symbolType;
     this.entitiesAmount = entitiesPerLayer;
+    this.selectedClusteringType = clusteringType;
 
     // Load only selected layers with lazy loading strategy
     if (this.activeLayerIds.size > 0) {
       const selectedLayerIds = Array.from(this.activeLayerIds);
-      const layerPromises = selectedLayerIds.map(layerId => this.addLayer(layerId));
+      const layerPromises = selectedLayerIds.map(layerId => this.addLayerWithClustering(layerId, enableClustering));
       await Promise.all(layerPromises);
     }
 
