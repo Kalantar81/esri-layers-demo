@@ -80,49 +80,10 @@
     [lastLoadedTime]="lastLoadedTime">
   </app-status-info>
 
-  <!-- History Section -->
-  <div class="history-section">
-    <div class="history-header" (click)="onHistoryToggle()">
-      <h4>History</h4>
-      <span class="history-count" *ngIf="history.length > 0">({{ history.length }})</span>
-      <button class="toggle-btn" [class.expanded]="isHistoryExpanded">
-        {{ isHistoryExpanded ? '−' : '+' }}
-      </button>
-    </div>
-
-    <div class="history-content" *ngIf="isHistoryExpanded">
-      <div class="history-actions" *ngIf="history.length > 0">
-        <button class="clear-history-btn" (click)="onClearHistory()">Clear History</button>
-      </div>
-
-      <div class="history-empty" *ngIf="history.length === 0">
-        <p>No history yet. Load layers to see history.</p>
-      </div>
-
-      <div class="history-table-wrapper" *ngIf="history.length > 0">
-        <table class="history-table">
-          <thead>
-            <tr>
-              <th>Time</th>
-              <th>Basemap</th>
-              <th>Symbol</th>
-              <th>Entities</th>
-              <th>Load Time</th>
-              <th>Layers</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let entry of history" class="history-row">
-              <td class="timestamp">{{ entry.timestamp | date:'short' }}</td>
-              <td>{{ entry.basemap }}</td>
-              <td>{{ entry.symbolType }}</td>
-              <td>{{ entry.totalEntities | number }}</td>
-              <td class="load-time">{{ entry.loadingTime }} ms</td>
-              <td>{{ entry.activeLayersCount }}</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
+  <app-history-section
+    [history]="history"
+    [isExpanded]="isHistoryExpanded"
+    (toggle)="onHistoryToggle()"
+    (clear)="onClearHistory()">
+  </app-history-section>
 </div>

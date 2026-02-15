@@ -1,13 +1,5 @@
 import { Component, Input, Output, EventEmitter, OnDestroy } from '@angular/core';
-
-interface HistoryEntry {
-  timestamp: Date;
-  basemap: string;
-  symbolType: string;
-  totalEntities: number;
-  loadingTime: number;
-  activeLayersCount: number;
-}
+import { HistoryEntry } from '../../components/history-section/history-section.component';
 
 @Component({
   selector: 'app-control-panel-layers',

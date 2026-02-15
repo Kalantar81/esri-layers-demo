@@ -15,6 +15,7 @@ import { LayersService } from './services/layers.service';
 import { ContolPanelLazyLoadingComponent } from './esri-map/control-panels/contol-panel-lazy-loading/contol-panel-lazy-loading.component';
 import { LayerControlButtonComponent } from './layer-control-button/layer-control-button.component';
 import { StatusInfoComponent } from './esri-map/components/status-info/status-info.component';
+import { HistorySectionComponent } from './esri-map/components/history-section/history-section.component';
 
 
 @NgModule({
@@ -24,7 +25,8 @@ import { StatusInfoComponent } from './esri-map/components/status-info/status-in
     MapsLayoutComponent,
     ContolPanelLazyLoadingComponent,
     LayerControlButtonComponent,
-    StatusInfoComponent
+    StatusInfoComponent,
+    HistorySectionComponent
   ],
   imports: [
     CommonModule,

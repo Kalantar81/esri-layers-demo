@@ -1,5 +1,6 @@
 import { Component, OnInit, OnDestroy, Output, EventEmitter, Input } from '@angular/core';
 import { FormGroup, FormControl } from '@angular/forms';
+import { HistoryEntry } from '../../components/history-section/history-section.component';
 
 export interface LazyLoadingSettings {
   layerType: 'geojson' | 'graphics' | 'feature' | 'csv' | 'feature-collection' | 'client-side';
@@ -7,15 +8,6 @@ export interface LazyLoadingSettings {
   entitiesPerLayer: number;
   bulkAmount: number;
   loadingStrategy: string;
-}
-
-interface HistoryEntry {
-  timestamp: Date;
-  basemap: string;
-  symbolType: string;
-  totalEntities: number;
-  loadingTime: number;
-  activeLayersCount: number;
 }
 
 @Component({
