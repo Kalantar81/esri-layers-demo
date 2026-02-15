@@ -224,14 +224,72 @@
   }
 }
 
-// Esri Legend Widget
+// Esri Legend Widget (horizontal override)
 .esri-legend-container {
   position: absolute;
-  bottom: 30px;
-  left: 15px;
+  bottom: 12px;
+  left: 12px;
+  right: 12px;
   z-index: 50;
-  max-height: 250px;
+  max-height: 140px;
   overflow-y: auto;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(6px);
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  padding: 8px 12px;
+}
+
+::ng-deep .esri-legend-container {
+  .esri-legend {
+    background: transparent;
+    padding: 0;
+    box-shadow: none;
+  }
+
+  .esri-legend--card {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 4px 12px;
+  }
+
+  .esri-legend--card__section {
+    flex: 0 0 auto;
+    min-width: unset;
+    width: auto;
+    border: none;
+    padding: 4px 0;
+  }
+
+  .esri-legend__layer {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 4px 12px;
+  }
+
+  .esri-legend__layer-table {
+    margin: 0;
+  }
+
+  .esri-legend__layer-row {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .esri-legend__service {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 4px 12px;
+    padding: 0;
+  }
+
+  .esri-legend__layer-caption {
+    font-size: 12px;
+    font-weight: 500;
+  }
 }
 
 // Responsive design
@@ -268,5 +326,13 @@
     .legend-name {
       font-size: 11px;
     }
+  }
+
+  .esri-legend-container {
+    bottom: 8px;
+    left: 8px;
+    right: 8px;
+    padding: 6px 8px;
+    max-height: 80px;
   }
 }

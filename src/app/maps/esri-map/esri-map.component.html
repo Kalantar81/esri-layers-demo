@@ -31,6 +31,9 @@
       </div>
     </div>
 
+    <!-- Esri Legend Container -->
+    <div #legendNode class="esri-legend-container" [hidden]="legendType !== 'esri'"></div>
+
     <!-- Custom Legend -->
     <div class="map-legend" *ngIf="activeLayerIds.size > 0 && legendType === 'custom'">
       <div class="legend-item" *ngFor="let layerId of activeLayerIds">

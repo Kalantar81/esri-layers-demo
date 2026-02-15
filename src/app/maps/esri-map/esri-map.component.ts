@@ -352,11 +352,6 @@ export class EsriMapComponent implements OnInit, OnDestroy, OnChanges {
 
       await this.view.when();
 
-      const legend = new Legend({
-        view: this.view,
-        container: this.legendEl.nativeElement
-      });
-
     } catch (error) {
       console.error('Error initializing map:', error);
     }
@@ -1818,14 +1813,17 @@ export class EsriMapComponent implements OnInit, OnDestroy, OnChanges {
       this.legendWidget.destroy();
     }
     this.legendWidget = new Legend({
-      view: this.view
+      view: this.view,
+      container: this.legendEl.nativeElement,
+      style: {
+        type: 'card',
+        layout: 'side-by-side'
+      } as any
     });
-    this.view.ui.add(this.legendWidget, 'bottom-left');
   }
 
   private removeEsriLegend(): void {
     if (this.legendWidget) {
-      this.view.ui.remove(this.legendWidget);
       this.legendWidget.destroy();
       this.legendWidget = null;
     }
