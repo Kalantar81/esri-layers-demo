@@ -50,6 +50,20 @@
         class="p-button-text toolbar-btn">
       </button>
 
+      <!-- Labels Button -->
+      <button 
+        pButton 
+        type="button" 
+        pRipple
+        icon="pi pi-tags" 
+        label="Labels"
+        [pTooltip]="'Configure layer labels'"
+        tooltipPosition="bottom"
+        (click)="onLabelsToggle()"
+        [class.active]="layerMode === 'labels'"
+        class="p-button-text toolbar-btn">
+      </button>
+
       <!-- Legend Toggle Switch -->
       <div class="legend-toggle">
         <label>Custom</label>

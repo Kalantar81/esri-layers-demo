@@ -40,7 +40,7 @@ export class EsriMapComponent implements OnInit, OnDestroy, OnChanges {
   @ViewChild('mapViewNode', { static: true }) private mapViewEl!: ElementRef;
   @ViewChild('legendNode', { static: true }) private legendEl!: ElementRef;
   @ViewChild('lazyLoadingPanel') private lazyLoadingPanel!: ContolPanelLazyLoadingComponent;
-  @Input() layerMode: 'layers' | 'lazy-loading' | 'clustering' = 'layers';
+  @Input() layerMode: 'layers' | 'lazy-loading' | 'clustering' | 'labels' = 'layers';
 
   private view: any = null;
   private map: any = null;

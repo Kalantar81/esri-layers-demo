@@ -107,4 +107,9 @@
     (historyClear)="clearHistory()"
     (cleanup)="cleanupAllLayers()"
   ></app-control-panel-clustering>
+
+  <!-- Labels Control Panel -->
+  <app-control-panel-labels
+    *ngIf="layerMode === 'labels'"
+  ></app-control-panel-labels>
 </div>

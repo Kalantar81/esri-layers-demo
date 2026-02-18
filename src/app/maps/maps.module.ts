@@ -28,6 +28,7 @@ import { ClusteringTypeSelectorComponent } from './esri-map/control-panels/contr
 import { AnalysisMethodSelectorComponent } from './esri-map/control-panels/controls/analysis-method-selector/analysis-method-selector.component';
 import { EntitiesInputWithTotalComponent } from './esri-map/control-panels/controls/entities-input-with-total/entities-input-with-total.component';
 import { LoadingStrategySelectorComponent } from './esri-map/control-panels/controls/loading-strategy-selector/loading-strategy-selector.component';
+import { ControlPanelLabelsComponent } from './esri-map/control-panels/control-panel-labels/control-panel-labels.component';
 
 
 @NgModule({
@@ -49,7 +50,8 @@ import { LoadingStrategySelectorComponent } from './esri-map/control-panels/cont
     ClusteringTypeSelectorComponent,
     AnalysisMethodSelectorComponent,
     EntitiesInputWithTotalComponent,
-    LoadingStrategySelectorComponent
+    LoadingStrategySelectorComponent,
+    ControlPanelLabelsComponent
   ],
   imports: [
     CommonModule,

@@ -21,7 +21,7 @@ interface HistoryEntry {
 export class MapsLayoutComponent implements OnInit, OnDestroy {
   @ViewChild('esriMap') esriMap!: EsriMapComponent;
 
-  layerMode: 'layers' | 'lazy-loading' | 'clustering' = 'layers';
+  layerMode: 'layers' | 'lazy-loading' | 'clustering' | 'labels' = 'layers';
   useEsriLegend: boolean = false;
 
   // Control panel state
@@ -78,6 +78,8 @@ export class MapsLayoutComponent implements OnInit, OnDestroy {
       this.layerMode = 'lazy-loading';
     } else if (url.includes('control-panel-clustering')) {
       this.layerMode = 'clustering';
+    } else if (url.includes('control-panel-labels')) {
+      this.layerMode = 'labels';
     } else {
       this.layerMode = 'layers';
     }
@@ -103,6 +105,13 @@ export class MapsLayoutComponent implements OnInit, OnDestroy {
     this.resetControlPanel();
   }
 
+  onLabelsToggle(): void {
+    this.layerMode = 'labels';
+    this.router.navigate(['/control-panel-labels']);
+    this.esriMap.removeAllLayers();
+    this.resetControlPanel();
+  }
+
   onLegendToggle(): void {
     if (this.esriMap) {
       this.esriMap.setLegendType(this.useEsriLegend ? 'esri' : 'custom');
@@ -113,7 +122,8 @@ export class MapsLayoutComponent implements OnInit, OnDestroy {
     const modeNames: { [key: string]: string } = {
       'layers': 'Standard Layers',
       'lazy-loading': 'Lazy Loading',
-      'clustering': 'Clustering'
+      'clustering': 'Clustering',
+      'labels': 'Labels'
     };
     return modeNames[this.layerMode] || this.layerMode;
   }
