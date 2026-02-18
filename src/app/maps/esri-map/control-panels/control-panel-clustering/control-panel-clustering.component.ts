@@ -78,6 +78,14 @@ export class ControlPanelClusteringComponent implements OnInit, OnDestroy {
   }
 
   onApplySettings(): void {
+    console.log('[Clustering] Settings values:', {
+      basemap: this.selectedBasemap,
+      layerType: this.selectedLayerTypeForAll,
+      symbolType: this.selectedSymbolType,
+      entitiesAmount: this.entitiesAmount,
+      clusteringType: this.selectedClusteringType,
+      analysisMethod: this.selectedAnalysisMethod
+    });
     this.applySettings.emit();
   }
 

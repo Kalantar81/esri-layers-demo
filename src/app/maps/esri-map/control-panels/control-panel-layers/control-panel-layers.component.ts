@@ -66,6 +66,12 @@ export class ControlPanelLayersComponent implements OnInit, OnDestroy {
   }
 
   onApplySettings(): void {
+    console.log('[Layers] Settings values:', {
+      basemap: this.selectedBasemap,
+      layerType: this.selectedLayerTypeForAll,
+      symbolType: this.selectedSymbolType,
+      entitiesAmount: this.entitiesAmount
+    });
     this.applySettings.emit();
   }
 

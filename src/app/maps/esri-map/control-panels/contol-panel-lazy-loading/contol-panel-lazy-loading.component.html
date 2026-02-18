@@ -6,6 +6,7 @@
     <app-symbol-type-selector [control]="$any(settingsForm.get('symbolType'))"></app-symbol-type-selector>
     <app-entities-input [control]="$any(settingsForm.get('entitiesPerLayer'))"></app-entities-input>
     <app-clustering-controls [formGroup]="settingsForm"></app-clustering-controls>
+    <app-loading-strategy-selector [control]="$any(settingsForm.get('loadingStrategy'))"></app-loading-strategy-selector>
     <app-bulk-amount-input [control]="$any(settingsForm.get('bulkAmount'))"></app-bulk-amount-input>
 
     <button type="submit" class="apply-button">

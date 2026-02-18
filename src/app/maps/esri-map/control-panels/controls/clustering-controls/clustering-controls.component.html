@@ -24,14 +24,4 @@
       <option value="high-low">High/Low Clustering (Getis-Ord)</option>
     </select>
   </div>
-
-  <div class="control-group" *ngIf="formGroup.get('enableClustering')?.value">
-    <label for="loadingStrategy">Loading Strategy:</label>
-    <select id="loadingStrategy" formControlName="loadingStrategy">
-      <option value="query-task-pagination">QueryTask Pagination</option>
-      <option value="graphics-layer-batches">GraphicsLayer Batches</option>
-      <option value="clustering">Clustering</option>
-      <option value="max-record-count">Max Record Count</option>
-    </select>
-  </div>
 </div>

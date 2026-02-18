@@ -69,6 +69,11 @@ export class ContolPanelLazyLoadingComponent implements OnInit, OnDestroy {
 
   onSubmit(): void {
     if (this.settingsForm.valid) {
+      const values = { ...this.settingsForm.value };
+      if (!values.enableClustering) {
+        delete values.clusteringType;
+      }
+      console.log('[LazyLoading] Form values:', values);
       this.startTime = performance.now();
       this.applySettings.emit(this.settingsForm.value);
     }
