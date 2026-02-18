@@ -12,6 +12,8 @@ export interface LabelSettings {
   clusteringType: string;
   analysisMethod: string;
   loadingStrategy: string;
+  enableLabel: boolean;
+  labelZoomVisibility: number;
 }
 
 @Component({
@@ -36,6 +38,30 @@ export class ControlPanelLabelsComponent implements OnInit, OnDestroy {
   private startTime: number = 0;
   private readonly PANEL_NAME = 'labels';
 
+  zoomLevels = [
+    { zoom: 0, scaleLabel: '591M' },
+    { zoom: 1, scaleLabel: '295M' },
+    { zoom: 2, scaleLabel: '147M' },
+    { zoom: 3, scaleLabel: '73M' },
+    { zoom: 4, scaleLabel: '36M' },
+    { zoom: 5, scaleLabel: '18M' },
+    { zoom: 6, scaleLabel: '9.2M' },
+    { zoom: 7, scaleLabel: '4.6M' },
+    { zoom: 8, scaleLabel: '2.3M' },
+    { zoom: 9, scaleLabel: '1.1M' },
+    { zoom: 10, scaleLabel: '577K' },
+    { zoom: 11, scaleLabel: '288K' },
+    { zoom: 12, scaleLabel: '144K' },
+    { zoom: 13, scaleLabel: '72K' },
+    { zoom: 14, scaleLabel: '36K' },
+    { zoom: 15, scaleLabel: '18K' },
+    { zoom: 16, scaleLabel: '9K' },
+    { zoom: 17, scaleLabel: '4.5K' },
+    { zoom: 18, scaleLabel: '2.2K' },
+    { zoom: 19, scaleLabel: '1.1K' },
+    { zoom: 20, scaleLabel: '564' }
+  ];
+
   constructor(private historyStorage: HistoryStorageService) {}
 
   ngOnInit(): void {
@@ -51,7 +77,9 @@ export class ControlPanelLabelsComponent implements OnInit, OnDestroy {
       enableClustering: new FormControl(false),
       clusteringType: new FormControl('dynamic'),
       analysisMethod: new FormControl('multivariate'),
-      loadingStrategy: new FormControl('query-task-pagination')
+      loadingStrategy: new FormControl('query-task-pagination'),
+      enableLabel: new FormControl(false),
+      labelZoomVisibility: new FormControl(7)
     });
 
     this.settingsForm.get('enableClustering')?.valueChanges.subscribe(enabled => {

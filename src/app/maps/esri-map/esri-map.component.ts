@@ -13,6 +13,7 @@ import Point from '@arcgis/core/geometry/Point';
 import FeatureLayer from '@arcgis/core/layers/FeatureLayer';
 import CSVLayer from '@arcgis/core/layers/CSVLayer';
 import SimpleRenderer from '@arcgis/core/renderers/SimpleRenderer';
+import TextSymbol from '@arcgis/core/symbols/TextSymbol';
 import Legend from '@arcgis/core/widgets/Legend';
 
 interface LayerType {
@@ -59,6 +60,8 @@ export class EsriMapComponent implements OnInit, OnDestroy, OnChanges {
   selectedBasemap: string = 'streets-vector';
   selectedClusteringType: string = 'dynamic';
   selectedAnalysisMethod: string = 'multivariate';
+  enableLabel: boolean = false;
+  labelZoomVisibility: number = 7;
   entitiesAmount: number = 50000;
   layersToLoad: number = 22;
 
@@ -893,6 +896,34 @@ export class EsriMapComponent implements OnInit, OnDestroy, OnChanges {
     return 'data:image/svg+xml;base64,' + btoa(svgTypes[svgIndex]);
   }
 
+  private zoomToScale(zoom: number): number {
+    const scales: { [key: number]: number } = {
+      0: 591657528, 1: 295828764, 2: 147914382, 3: 73957191,
+      4: 36978595, 5: 18489298, 6: 9244649, 7: 4622324,
+      8: 2311162, 9: 1155581, 10: 577791, 11: 288895,
+      12: 144448, 13: 72224, 14: 36112, 15: 18056,
+      16: 9028, 17: 4514, 18: 2257, 19: 1128, 20: 564
+    };
+    return scales[zoom] || 4622324;
+  }
+
+  private getLabelingInfo(): any[] {
+    const minScale = this.zoomToScale(this.labelZoomVisibility);
+    return [{
+      labelExpressionInfo: { expression: '"aaa"' },
+      symbol: {
+        type: 'text',
+        color: [0, 0, 0, 1],
+        haloColor: [255, 255, 255, 1],
+        haloSize: 1,
+        font: { size: 10, weight: 'bold', family: 'sans-serif' }
+      },
+      labelPlacement: 'above-center',
+      deconflictionStrategy: 'none',
+      minScale: minScale
+    }];
+  }
+
   private getSymbolForType(layerId: string): any {
     const color = this.getColorForLayer(layerId);
 
@@ -1003,7 +1034,7 @@ export class EsriMapComponent implements OnInit, OnDestroy, OnChanges {
     const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
 
-    return new GeoJSONLayer({
+    const layerConfig: any = {
       url: url,
       title: this.getLayerName(layerId),
       renderer: new SimpleRenderer({
@@ -1013,7 +1044,11 @@ export class EsriMapComponent implements OnInit, OnDestroy, OnChanges {
         title: 'Earthquake (GeoJSON Layer)',
         content: '<b>ID:</b> {id}<br><b>Latitude:</b> {latitude}<br><b>Longitude:</b> {longitude}<br><b>Magnitude:</b> {mag}<br><b>Mag Type:</b> {magnitude_type}<br><b>Location:</b> {place}<br><b>Time:</b> {time}<br><b>Depth:</b> {depth}<br><b>Status:</b> {status}<br><b>Felt Reports:</b> {felt_reports}<br><b>Significant:</b> {significant}<br><b>Tsunami Risk:</b> {tsunami}<br><b>Reported By:</b> {reported_by}'
       }
-    });
+    };
+    if (this.enableLabel) {
+      layerConfig.labelingInfo = this.getLabelingInfo();
+    }
+    return new GeoJSONLayer(layerConfig);
   }
 
   private async createGraphicsLayer(data: any): Promise<void> {
@@ -1047,6 +1082,21 @@ export class EsriMapComponent implements OnInit, OnDestroy, OnChanges {
       });
 
       layer.add(graphic);
+
+      if (this.enableLabel) {
+        const textGraphic = new Graphic({
+          geometry: point,
+          symbol: new TextSymbol({
+            text: 'aaa',
+            color: [0, 0, 0, 1],
+            haloColor: [255, 255, 255, 1],
+            haloSize: 1,
+            yoffset: 10,
+            font: { size: 10, weight: 'bold', family: 'sans-serif' }
+          })
+        });
+        layer.add(textGraphic);
+      }
     });
 
     return layer;
@@ -1071,7 +1121,7 @@ export class EsriMapComponent implements OnInit, OnDestroy, OnChanges {
       });
     });
 
-    return new FeatureLayer({
+    const layerConfig: any = {
       source: graphics,
       title: this.getLayerName(layerId),
       objectIdField: 'OBJECTID',
@@ -1098,7 +1148,11 @@ export class EsriMapComponent implements OnInit, OnDestroy, OnChanges {
         title: 'Earthquake (Feature Layer)',
         content: '<b>ID:</b> {id}<br><b>Latitude:</b> {latitude}<br><b>Longitude:</b> {longitude}<br><b>Magnitude:</b> {mag}<br><b>Mag Type:</b> {magnitude_type}<br><b>Location:</b> {place}<br><b>Time:</b> {time}<br><b>Depth:</b> {depth}<br><b>Status:</b> {status}<br><b>Felt Reports:</b> {felt_reports}<br><b>Significant:</b> {significant}<br><b>Tsunami Risk:</b> {tsunami}<br><b>Reported By:</b> {reported_by}'
       }
-    });
+    };
+    if (this.enableLabel) {
+      layerConfig.labelingInfo = this.getLabelingInfo();
+    }
+    return new FeatureLayer(layerConfig);
   }
 
   private async createCSVLayer(data: any): Promise<void> {
@@ -1120,7 +1174,7 @@ export class EsriMapComponent implements OnInit, OnDestroy, OnChanges {
     const blob = new Blob([csvContent], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
 
-    return new CSVLayer({
+    const layerConfig: any = {
       url: url,
       title: this.getLayerName(layerId),
       latitudeField: 'latitude',
@@ -1132,7 +1186,11 @@ export class EsriMapComponent implements OnInit, OnDestroy, OnChanges {
         title: 'Earthquake (CSV Layer)',
         content: '<b>ID:</b> {id}<br><b>Latitude:</b> {latitude}<br><b>Longitude:</b> {longitude}<br><b>Magnitude:</b> {mag}<br><b>Mag Type:</b> {magnitude_type}<br><b>Location:</b> {place}<br><b>Time:</b> {time}<br><b>Depth:</b> {depth}<br><b>Status:</b> {status}<br><b>Felt Reports:</b> {felt_reports}<br><b>Significant:</b> {significant}<br><b>Tsunami Risk:</b> {tsunami}<br><b>Reported By:</b> {reported_by}'
       }
-    });
+    };
+    if (this.enableLabel) {
+      layerConfig.labelingInfo = this.getLabelingInfo();
+    }
+    return new CSVLayer(layerConfig);
   }
 
   private async createFeatureCollectionLayer(data: any): Promise<void> {
@@ -1170,7 +1228,7 @@ export class EsriMapComponent implements OnInit, OnDestroy, OnChanges {
       };
     });
 
-    return new FeatureLayer({
+    const layerConfig: any = {
       source: featureSet,
       title: this.getLayerName(layerId),
       objectIdField: 'ObjectID',
@@ -1198,7 +1256,11 @@ export class EsriMapComponent implements OnInit, OnDestroy, OnChanges {
         title: 'Earthquake (Feature Collection)',
         content: '<b>ID:</b> {id}<br><b>Latitude:</b> {latitude}<br><b>Longitude:</b> {longitude}<br><b>Magnitude:</b> {mag}<br><b>Mag Type:</b> {magnitude_type}<br><b>Location:</b> {place}<br><b>Time:</b> {time}<br><b>Depth:</b> {depth}<br><b>Status:</b> {status}<br><b>Felt Reports:</b> {felt_reports}<br><b>Significant:</b> {significant}<br><b>Tsunami Risk:</b> {tsunami}<br><b>Reported By:</b> {reported_by}'
       }
-    });
+    };
+    if (this.enableLabel) {
+      layerConfig.labelingInfo = this.getLabelingInfo();
+    }
+    return new FeatureLayer(layerConfig);
   }
 
   private async createClientSideFeatureLayer(data: any): Promise<void> {
@@ -1237,7 +1299,7 @@ export class EsriMapComponent implements OnInit, OnDestroy, OnChanges {
       };
     });
 
-    return new FeatureLayer({
+    const layerConfig: any = {
       source: graphics,
       title: this.getLayerName(layerId),
       objectIdField: 'OBJECTID',
@@ -1266,7 +1328,11 @@ export class EsriMapComponent implements OnInit, OnDestroy, OnChanges {
         title: 'Earthquake (Client-Side Feature)',
         content: '<b>ID:</b> {id}<br><b>Latitude:</b> {latitude}<br><b>Longitude:</b> {longitude}<br><b>Magnitude:</b> {mag}<br><b>Mag Type:</b> {magnitude_type}<br><b>Location:</b> {place}<br><b>Time:</b> {time}<br><b>Depth:</b> {depth}<br><b>Status:</b> {status}<br><b>Felt Reports:</b> {felt_reports}<br><b>Significant:</b> {significant}<br><b>Tsunami Risk:</b> {tsunami}<br><b>Reported By:</b> {reported_by}'
       }
-    });
+    };
+    if (this.enableLabel) {
+      layerConfig.labelingInfo = this.getLabelingInfo();
+    }
+    return new FeatureLayer(layerConfig);
   }
 
   // =============================================
@@ -1501,7 +1567,7 @@ export class EsriMapComponent implements OnInit, OnDestroy, OnChanges {
 
     const clusterConfig = this.getClusterConfig();
 
-    return new FeatureLayer({
+    const layerConfig: any = {
       source: graphics,
       title: this.getLayerName(layerId),
       objectIdField: 'OBJECTID',
@@ -1528,7 +1594,11 @@ export class EsriMapComponent implements OnInit, OnDestroy, OnChanges {
         title: 'Feature ({id})',
         content: '<b>Magnitude:</b> {mag}<br><b>Location:</b> {place}<br><b>Depth:</b> {depth}<br><b>Status:</b> {status}'
       }
-    });
+    };
+    if (this.enableLabel) {
+      layerConfig.labelingInfo = this.getLabelingInfo();
+    }
+    return new FeatureLayer(layerConfig);
   }
 
   private getClusterConfig(): any {
@@ -1689,7 +1759,7 @@ export class EsriMapComponent implements OnInit, OnDestroy, OnChanges {
 
   async onLabelsApplySettings(settings: LabelSettings): Promise<void> {
     const startTime = performance.now();
-    const { layerType, symbolType, entitiesPerLayer, bulkAmount, loadingStrategy, enableClustering, clusteringType } = settings;
+    const { layerType, symbolType, entitiesPerLayer, bulkAmount, loadingStrategy, enableClustering, clusteringType, enableLabel, labelZoomVisibility } = settings;
 
     // Clear all layers and graphics first
     this.activeLayers.forEach(layer => this.map.remove(layer));
@@ -1707,6 +1777,8 @@ export class EsriMapComponent implements OnInit, OnDestroy, OnChanges {
     this.selectedSymbolType = symbolType;
     this.entitiesAmount = entitiesPerLayer;
     this.selectedClusteringType = clusteringType;
+    this.enableLabel = enableLabel;
+    this.labelZoomVisibility = Number(labelZoomVisibility);
 
     // Load only selected layers
     if (this.activeLayerIds.size > 0) {

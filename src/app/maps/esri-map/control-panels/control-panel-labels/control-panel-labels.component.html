@@ -9,6 +9,20 @@
     <app-loading-strategy-selector [control]="$any(settingsForm.get('loadingStrategy'))"></app-loading-strategy-selector>
     <app-bulk-amount-input [control]="$any(settingsForm.get('bulkAmount'))"></app-bulk-amount-input>
 
+    <label>
+      <input type="checkbox" formControlName="enableLabel">
+      enable label
+    </label>
+
+    <div *ngIf="settingsForm.get('enableLabel')?.value" class="form-group">
+      <label for="labelZoomVisibility">Zoom Label Visibility</label>
+      <select id="labelZoomVisibility" formControlName="labelZoomVisibility">
+        <option *ngFor="let level of zoomLevels" [value]="level.zoom">
+          Zoom {{ level.zoom }} (1:{{ level.scaleLabel }})
+        </option>
+      </select>
+    </div>
+
     <button type="submit" class="apply-button">
       Apply Settings
     </button>
