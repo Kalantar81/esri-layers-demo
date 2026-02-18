@@ -14,6 +14,7 @@ export interface LabelSettings {
   loadingStrategy: string;
   enableLabel: boolean;
   labelZoomVisibility: number;
+  enableTooltip: boolean;
 }
 
 @Component({
@@ -79,7 +80,8 @@ export class ControlPanelLabelsComponent implements OnInit, OnDestroy {
       analysisMethod: new FormControl('multivariate'),
       loadingStrategy: new FormControl('query-task-pagination'),
       enableLabel: new FormControl(false),
-      labelZoomVisibility: new FormControl(7)
+      labelZoomVisibility: new FormControl(7),
+      enableTooltip: new FormControl(false)
     });
 
     this.settingsForm.get('enableClustering')?.valueChanges.subscribe(enabled => {

@@ -14,6 +14,11 @@
       enable label
     </label>
 
+    <label>
+      <input type="checkbox" formControlName="enableTooltip">
+      enable tooltip (hover)
+    </label>
+
     <div *ngIf="settingsForm.get('enableLabel')?.value" class="form-group">
       <label for="labelZoomVisibility">Zoom Label Visibility</label>
       <select id="labelZoomVisibility" formControlName="labelZoomVisibility">

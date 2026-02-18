@@ -52,6 +52,9 @@ export class EsriMapComponent implements OnInit, OnDestroy, OnChanges {
   private activeLayers: Map<string, any> = new Map();
   activeLayerIds: Set<string> = new Set();
   private legendWidget: any = null;
+  private tooltipElement: HTMLDivElement | null = null;
+  private pointerMoveHandle: any = null;
+  private enableTooltip: boolean = false;
   legendType: 'esri' | 'custom' = 'custom';
 
   selectedLayerType: string = 'geojson';
@@ -1779,12 +1782,19 @@ export class EsriMapComponent implements OnInit, OnDestroy, OnChanges {
     this.selectedClusteringType = clusteringType;
     this.enableLabel = enableLabel;
     this.labelZoomVisibility = Number(labelZoomVisibility);
+    this.enableTooltip = settings.enableTooltip;
 
     // Load only selected layers
     if (this.activeLayerIds.size > 0) {
       const selectedLayerIds = Array.from(this.activeLayerIds);
       const layerPromises = selectedLayerIds.map(layerId => this.addLayerWithClustering(layerId, enableClustering));
       await Promise.all(layerPromises);
+    }
+
+    // Setup or teardown hover tooltip
+    this.removeTooltip();
+    if (this.enableTooltip) {
+      this.setupTooltip();
     }
 
     const endTime = performance.now();
@@ -1880,6 +1890,68 @@ export class EsriMapComponent implements OnInit, OnDestroy, OnChanges {
     return this.sanitizer.bypassSecurityTrustHtml(shape);
   }
 
+  private setupTooltip(): void {
+    const tooltip = document.createElement('div');
+    tooltip.style.cssText = `
+      position: absolute;
+      background: white;
+      padding: 8px 12px;
+      border-radius: 4px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+      pointer-events: none;
+      display: none;
+      z-index: 1000;
+      font-size: 12px;
+      line-height: 1.4;
+      white-space: nowrap;
+    `;
+    this.view.container.appendChild(tooltip);
+    this.tooltipElement = tooltip;
+
+    let debounceTimer: any = null;
+    this.pointerMoveHandle = this.view.on('pointer-move', (event: any) => {
+      if (debounceTimer) { clearTimeout(debounceTimer); }
+      debounceTimer = setTimeout(() => {
+        // Hide tooltip if popup is open
+        if (this.view.popup?.visible) {
+          tooltip.style.display = 'none';
+          return;
+        }
+
+        const layers = Array.from(this.activeLayers.values());
+        this.view.hitTest(event, { include: layers }).then((response: any) => {
+          const result = response.results?.[0];
+          if (result?.graphic) {
+            const graphic = result.graphic;
+            const attrs = graphic.attributes || {};
+            const geom = graphic.geometry;
+            const lat = geom?.latitude ?? attrs.latitude ?? 'N/A';
+            const lon = geom?.longitude ?? attrs.longitude ?? 'N/A';
+            const id = attrs.id ?? attrs.OBJECTID ?? attrs.ObjectID ?? 'N/A';
+
+            tooltip.innerHTML = `<b>ID:</b> ${id}<br><b>Lat:</b> ${typeof lat === 'number' ? lat.toFixed(5) : lat}<br><b>Lon:</b> ${typeof lon === 'number' ? lon.toFixed(5) : lon}`;
+            tooltip.style.display = 'block';
+            tooltip.style.left = event.x + 15 + 'px';
+            tooltip.style.top = event.y + 15 + 'px';
+          } else {
+            tooltip.style.display = 'none';
+          }
+        });
+      }, 50);
+    });
+  }
+
+  private removeTooltip(): void {
+    if (this.pointerMoveHandle) {
+      this.pointerMoveHandle.remove();
+      this.pointerMoveHandle = null;
+    }
+    if (this.tooltipElement) {
+      this.tooltipElement.remove();
+      this.tooltipElement = null;
+    }
+  }
+
   cleanupAllLayers(): void {
     this.activeLayers.forEach(layer => this.map.remove(layer));
     this.activeLayers.clear();
@@ -1897,6 +1969,7 @@ export class EsriMapComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   ngOnDestroy(): void {
+    this.removeTooltip();
     if (this.legendWidget) {
       this.legendWidget.destroy();
     }
