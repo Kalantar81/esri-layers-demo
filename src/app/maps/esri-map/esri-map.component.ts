@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy, ViewChild, ElementRef, Input, OnChanges, 
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { LayersService } from '../services/layers.service';
 import { ContolPanelLazyLoadingComponent } from './control-panels/contol-panel-lazy-loading/contol-panel-lazy-loading.component';
+import { ControlPanelLabelsComponent, LabelSettings } from './control-panels/control-panel-labels/control-panel-labels.component';
 import esriConfig from '@arcgis/core/config';
 import EsriMap from '@arcgis/core/Map';
 import MapView from '@arcgis/core/views/MapView';
@@ -40,6 +41,7 @@ export class EsriMapComponent implements OnInit, OnDestroy, OnChanges {
   @ViewChild('mapViewNode', { static: true }) private mapViewEl!: ElementRef;
   @ViewChild('legendNode', { static: true }) private legendEl!: ElementRef;
   @ViewChild('lazyLoadingPanel') private lazyLoadingPanel!: ContolPanelLazyLoadingComponent;
+  @ViewChild('labelsPanel') private labelsPanel!: ControlPanelLabelsComponent;
   @Input() layerMode: 'layers' | 'lazy-loading' | 'clustering' | 'labels' = 'layers';
 
   private view: any = null;
@@ -1682,6 +1684,41 @@ export class EsriMapComponent implements OnInit, OnDestroy, OnChanges {
     const loadingTime = endTime - startTime;
     if (this.lazyLoadingPanel) {
       this.lazyLoadingPanel.addHistoryEntry(loadingTime);
+    }
+  }
+
+  async onLabelsApplySettings(settings: LabelSettings): Promise<void> {
+    const startTime = performance.now();
+    const { layerType, symbolType, entitiesPerLayer, bulkAmount, loadingStrategy, enableClustering, clusteringType } = settings;
+
+    // Clear all layers and graphics first
+    this.activeLayers.forEach(layer => this.map.remove(layer));
+    this.activeLayers.clear();
+    if (this.currentLayer) {
+      this.map.remove(this.currentLayer);
+      this.currentLayer = null;
+    }
+    this.map.allLayers.forEach((layer: any) => {
+      if (layer.type === 'graphics') {
+        layer.removeAll();
+      }
+    });
+
+    this.selectedSymbolType = symbolType;
+    this.entitiesAmount = entitiesPerLayer;
+    this.selectedClusteringType = clusteringType;
+
+    // Load only selected layers
+    if (this.activeLayerIds.size > 0) {
+      const selectedLayerIds = Array.from(this.activeLayerIds);
+      const layerPromises = selectedLayerIds.map(layerId => this.addLayerWithClustering(layerId, enableClustering));
+      await Promise.all(layerPromises);
+    }
+
+    const endTime = performance.now();
+    const loadingTime = endTime - startTime;
+    if (this.labelsPanel) {
+      this.labelsPanel.addHistoryEntry(loadingTime);
     }
   }
 

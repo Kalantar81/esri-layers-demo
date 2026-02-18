@@ -11,7 +11,7 @@
     <app-layer-control-button (toggle)="toggleLayerPanel()"></app-layer-control-button>
 
     <!-- Layer Control Panel -->
-    <div class="layer-panel" [class.open]="isLayerPanelOpen" *ngIf="layerMode === 'layers' || layerMode === 'lazy-loading' || layerMode === 'clustering'">
+    <div class="layer-panel" [class.open]="isLayerPanelOpen" *ngIf="layerMode === 'layers' || layerMode === 'lazy-loading' || layerMode === 'clustering' || layerMode === 'labels'">
       <div class="layer-panel-header">
         <h4>Active Layers</h4>
         <button class="close-btn" (click)="toggleLayerPanel()">×</button>
@@ -110,6 +110,16 @@
 
   <!-- Labels Control Panel -->
   <app-control-panel-labels
+    #labelsPanel
     *ngIf="layerMode === 'labels'"
+    [activeLayerCount]="activeLayerIds.size"
+    [entitiesAmount]="entitiesAmount"
+    [totalLoadingTime]="totalLoadingTime"
+    [lastLoadedTime]="lastLoadedTime"
+    [history]="history"
+    (applySettings)="onLabelsApplySettings($event)"
+    (historyToggle)="toggleHistory()"
+    (historyClear)="clearHistory()"
+    (cleanup)="cleanupAllLayers()"
   ></app-control-panel-labels>
 </div>
